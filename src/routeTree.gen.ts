@@ -19,9 +19,14 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as SermonsRouteImport } from './routes/sermons'
 import { Route as VisitRouteImport } from './routes/visit'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as AdminAnnouncementsRouteImport } from './routes/admin/announcements'
+import { Route as AdminContentRouteImport } from './routes/admin/content'
+import { Route as AdminEventsRouteImport } from './routes/admin/events'
 import { Route as AdminForgotPasswordRouteImport } from './routes/admin/forgot-password'
 import { Route as AdminLoginRouteImport } from './routes/admin/login'
+import { Route as AdminMinistriesRouteImport } from './routes/admin/ministries'
 import { Route as AdminResetPasswordRouteImport } from './routes/admin/reset-password'
+import { Route as AdminSermonsRouteImport } from './routes/admin/sermons'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -73,6 +78,21 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdminRouteRoute,
 } as any)
+const AdminAnnouncementsRoute = AdminAnnouncementsRouteImport.update({
+  id: '/announcements',
+  path: '/announcements',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminContentRoute = AdminContentRouteImport.update({
+  id: '/content',
+  path: '/content',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminEventsRoute = AdminEventsRouteImport.update({
+  id: '/events',
+  path: '/events',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
 const AdminForgotPasswordRoute = AdminForgotPasswordRouteImport.update({
   id: '/forgot-password',
   path: '/forgot-password',
@@ -83,9 +103,19 @@ const AdminLoginRoute = AdminLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => AdminRouteRoute,
 } as any)
+const AdminMinistriesRoute = AdminMinistriesRouteImport.update({
+  id: '/ministries',
+  path: '/ministries',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
 const AdminResetPasswordRoute = AdminResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminSermonsRoute = AdminSermonsRouteImport.update({
+  id: '/sermons',
+  path: '/sermons',
   getParentRoute: () => AdminRouteRoute,
 } as any)
 
@@ -99,9 +129,14 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/sermons': typeof SermonsRoute
   '/visit': typeof VisitRoute
+  '/admin/announcements': typeof AdminAnnouncementsRoute
+  '/admin/content': typeof AdminContentRoute
+  '/admin/events': typeof AdminEventsRoute
   '/admin/forgot-password': typeof AdminForgotPasswordRoute
   '/admin/login': typeof AdminLoginRoute
+  '/admin/ministries': typeof AdminMinistriesRoute
   '/admin/reset-password': typeof AdminResetPasswordRoute
+  '/admin/sermons': typeof AdminSermonsRoute
   '/admin/': typeof AdminIndexRoute
 }
 export interface FileRoutesByTo {
@@ -113,9 +148,14 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/sermons': typeof SermonsRoute
   '/visit': typeof VisitRoute
+  '/admin/announcements': typeof AdminAnnouncementsRoute
+  '/admin/content': typeof AdminContentRoute
+  '/admin/events': typeof AdminEventsRoute
   '/admin/forgot-password': typeof AdminForgotPasswordRoute
   '/admin/login': typeof AdminLoginRoute
+  '/admin/ministries': typeof AdminMinistriesRoute
   '/admin/reset-password': typeof AdminResetPasswordRoute
+  '/admin/sermons': typeof AdminSermonsRoute
   '/admin': typeof AdminIndexRoute
 }
 export interface FileRoutesById {
@@ -129,9 +169,14 @@ export interface FileRoutesById {
   '/privacy': typeof PrivacyRoute
   '/sermons': typeof SermonsRoute
   '/visit': typeof VisitRoute
+  '/admin/announcements': typeof AdminAnnouncementsRoute
+  '/admin/content': typeof AdminContentRoute
+  '/admin/events': typeof AdminEventsRoute
   '/admin/forgot-password': typeof AdminForgotPasswordRoute
   '/admin/login': typeof AdminLoginRoute
+  '/admin/ministries': typeof AdminMinistriesRoute
   '/admin/reset-password': typeof AdminResetPasswordRoute
+  '/admin/sermons': typeof AdminSermonsRoute
   '/admin/': typeof AdminIndexRoute
 }
 export interface FileRouteTypes {
@@ -146,9 +191,14 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/sermons'
     | '/visit'
+    | '/admin/announcements'
+    | '/admin/content'
+    | '/admin/events'
     | '/admin/forgot-password'
     | '/admin/login'
+    | '/admin/ministries'
     | '/admin/reset-password'
+    | '/admin/sermons'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -160,9 +210,14 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/sermons'
     | '/visit'
+    | '/admin/announcements'
+    | '/admin/content'
+    | '/admin/events'
     | '/admin/forgot-password'
     | '/admin/login'
+    | '/admin/ministries'
     | '/admin/reset-password'
+    | '/admin/sermons'
     | '/admin'
   id:
     | '__root__'
@@ -175,9 +230,14 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/sermons'
     | '/visit'
+    | '/admin/announcements'
+    | '/admin/content'
+    | '/admin/events'
     | '/admin/forgot-password'
     | '/admin/login'
+    | '/admin/ministries'
     | '/admin/reset-password'
+    | '/admin/sermons'
     | '/admin/'
   fileRoutesById: FileRoutesById
 }
@@ -265,6 +325,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRouteRoute
     }
+    '/admin/announcements': {
+      id: '/admin/announcements'
+      path: '/announcements'
+      fullPath: '/admin/announcements'
+      preLoaderRoute: typeof AdminAnnouncementsRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/content': {
+      id: '/admin/content'
+      path: '/content'
+      fullPath: '/admin/content'
+      preLoaderRoute: typeof AdminContentRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/events': {
+      id: '/admin/events'
+      path: '/events'
+      fullPath: '/admin/events'
+      preLoaderRoute: typeof AdminEventsRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
     '/admin/forgot-password': {
       id: '/admin/forgot-password'
       path: '/forgot-password'
@@ -279,6 +360,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminLoginRouteImport
       parentRoute: typeof AdminRouteRoute
     }
+    '/admin/ministries': {
+      id: '/admin/ministries'
+      path: '/ministries'
+      fullPath: '/admin/ministries'
+      preLoaderRoute: typeof AdminMinistriesRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
     '/admin/reset-password': {
       id: '/admin/reset-password'
       path: '/reset-password'
@@ -286,20 +374,37 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminResetPasswordRouteImport
       parentRoute: typeof AdminRouteRoute
     }
+    '/admin/sermons': {
+      id: '/admin/sermons'
+      path: '/sermons'
+      fullPath: '/admin/sermons'
+      preLoaderRoute: typeof AdminSermonsRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
   }
 }
 
 interface AdminRouteRouteChildren {
+  AdminAnnouncementsRoute: typeof AdminAnnouncementsRoute
+  AdminContentRoute: typeof AdminContentRoute
+  AdminEventsRoute: typeof AdminEventsRoute
   AdminForgotPasswordRoute: typeof AdminForgotPasswordRoute
   AdminLoginRoute: typeof AdminLoginRoute
+  AdminMinistriesRoute: typeof AdminMinistriesRoute
   AdminResetPasswordRoute: typeof AdminResetPasswordRoute
+  AdminSermonsRoute: typeof AdminSermonsRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteRouteChildren: AdminRouteRouteChildren = {
+  AdminAnnouncementsRoute: AdminAnnouncementsRoute,
+  AdminContentRoute: AdminContentRoute,
+  AdminEventsRoute: AdminEventsRoute,
   AdminForgotPasswordRoute: AdminForgotPasswordRoute,
   AdminLoginRoute: AdminLoginRoute,
+  AdminMinistriesRoute: AdminMinistriesRoute,
   AdminResetPasswordRoute: AdminResetPasswordRoute,
+  AdminSermonsRoute: AdminSermonsRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 
