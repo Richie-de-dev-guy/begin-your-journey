@@ -23,8 +23,11 @@ import { Route as AdminAnnouncementsRouteImport } from './routes/admin/announcem
 import { Route as AdminContentRouteImport } from './routes/admin/content'
 import { Route as AdminEventsRouteImport } from './routes/admin/events'
 import { Route as AdminForgotPasswordRouteImport } from './routes/admin/forgot-password'
+import { Route as AdminInquiriesRouteImport } from './routes/admin/inquiries'
 import { Route as AdminLoginRouteImport } from './routes/admin/login'
+import { Route as AdminMediaRouteImport } from './routes/admin/media'
 import { Route as AdminMinistriesRouteImport } from './routes/admin/ministries'
+import { Route as AdminPrayerRequestsRouteImport } from './routes/admin/prayer-requests'
 import { Route as AdminResetPasswordRouteImport } from './routes/admin/reset-password'
 import { Route as AdminSermonsRouteImport } from './routes/admin/sermons'
 
@@ -98,14 +101,29 @@ const AdminForgotPasswordRoute = AdminForgotPasswordRouteImport.update({
   path: '/forgot-password',
   getParentRoute: () => AdminRouteRoute,
 } as any)
+const AdminInquiriesRoute = AdminInquiriesRouteImport.update({
+  id: '/inquiries',
+  path: '/inquiries',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
 const AdminLoginRoute = AdminLoginRouteImport.update({
   id: '/login',
   path: '/login',
   getParentRoute: () => AdminRouteRoute,
 } as any)
+const AdminMediaRoute = AdminMediaRouteImport.update({
+  id: '/media',
+  path: '/media',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
 const AdminMinistriesRoute = AdminMinistriesRouteImport.update({
   id: '/ministries',
   path: '/ministries',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminPrayerRequestsRoute = AdminPrayerRequestsRouteImport.update({
+  id: '/prayer-requests',
+  path: '/prayer-requests',
   getParentRoute: () => AdminRouteRoute,
 } as any)
 const AdminResetPasswordRoute = AdminResetPasswordRouteImport.update({
@@ -133,8 +151,11 @@ export interface FileRoutesByFullPath {
   '/admin/content': typeof AdminContentRoute
   '/admin/events': typeof AdminEventsRoute
   '/admin/forgot-password': typeof AdminForgotPasswordRoute
+  '/admin/inquiries': typeof AdminInquiriesRoute
   '/admin/login': typeof AdminLoginRoute
+  '/admin/media': typeof AdminMediaRoute
   '/admin/ministries': typeof AdminMinistriesRoute
+  '/admin/prayer-requests': typeof AdminPrayerRequestsRoute
   '/admin/reset-password': typeof AdminResetPasswordRoute
   '/admin/sermons': typeof AdminSermonsRoute
   '/admin/': typeof AdminIndexRoute
@@ -152,8 +173,11 @@ export interface FileRoutesByTo {
   '/admin/content': typeof AdminContentRoute
   '/admin/events': typeof AdminEventsRoute
   '/admin/forgot-password': typeof AdminForgotPasswordRoute
+  '/admin/inquiries': typeof AdminInquiriesRoute
   '/admin/login': typeof AdminLoginRoute
+  '/admin/media': typeof AdminMediaRoute
   '/admin/ministries': typeof AdminMinistriesRoute
+  '/admin/prayer-requests': typeof AdminPrayerRequestsRoute
   '/admin/reset-password': typeof AdminResetPasswordRoute
   '/admin/sermons': typeof AdminSermonsRoute
   '/admin': typeof AdminIndexRoute
@@ -173,8 +197,11 @@ export interface FileRoutesById {
   '/admin/content': typeof AdminContentRoute
   '/admin/events': typeof AdminEventsRoute
   '/admin/forgot-password': typeof AdminForgotPasswordRoute
+  '/admin/inquiries': typeof AdminInquiriesRoute
   '/admin/login': typeof AdminLoginRoute
+  '/admin/media': typeof AdminMediaRoute
   '/admin/ministries': typeof AdminMinistriesRoute
+  '/admin/prayer-requests': typeof AdminPrayerRequestsRoute
   '/admin/reset-password': typeof AdminResetPasswordRoute
   '/admin/sermons': typeof AdminSermonsRoute
   '/admin/': typeof AdminIndexRoute
@@ -195,8 +222,11 @@ export interface FileRouteTypes {
     | '/admin/content'
     | '/admin/events'
     | '/admin/forgot-password'
+    | '/admin/inquiries'
     | '/admin/login'
+    | '/admin/media'
     | '/admin/ministries'
+    | '/admin/prayer-requests'
     | '/admin/reset-password'
     | '/admin/sermons'
     | '/admin/'
@@ -214,8 +244,11 @@ export interface FileRouteTypes {
     | '/admin/content'
     | '/admin/events'
     | '/admin/forgot-password'
+    | '/admin/inquiries'
     | '/admin/login'
+    | '/admin/media'
     | '/admin/ministries'
+    | '/admin/prayer-requests'
     | '/admin/reset-password'
     | '/admin/sermons'
     | '/admin'
@@ -234,8 +267,11 @@ export interface FileRouteTypes {
     | '/admin/content'
     | '/admin/events'
     | '/admin/forgot-password'
+    | '/admin/inquiries'
     | '/admin/login'
+    | '/admin/media'
     | '/admin/ministries'
+    | '/admin/prayer-requests'
     | '/admin/reset-password'
     | '/admin/sermons'
     | '/admin/'
@@ -353,6 +389,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminForgotPasswordRouteImport
       parentRoute: typeof AdminRouteRoute
     }
+    '/admin/inquiries': {
+      id: '/admin/inquiries'
+      path: '/inquiries'
+      fullPath: '/admin/inquiries'
+      preLoaderRoute: typeof AdminInquiriesRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
     '/admin/login': {
       id: '/admin/login'
       path: '/login'
@@ -360,11 +403,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminLoginRouteImport
       parentRoute: typeof AdminRouteRoute
     }
+    '/admin/media': {
+      id: '/admin/media'
+      path: '/media'
+      fullPath: '/admin/media'
+      preLoaderRoute: typeof AdminMediaRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
     '/admin/ministries': {
       id: '/admin/ministries'
       path: '/ministries'
       fullPath: '/admin/ministries'
       preLoaderRoute: typeof AdminMinistriesRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/prayer-requests': {
+      id: '/admin/prayer-requests'
+      path: '/prayer-requests'
+      fullPath: '/admin/prayer-requests'
+      preLoaderRoute: typeof AdminPrayerRequestsRouteImport
       parentRoute: typeof AdminRouteRoute
     }
     '/admin/reset-password': {
@@ -389,8 +446,11 @@ interface AdminRouteRouteChildren {
   AdminContentRoute: typeof AdminContentRoute
   AdminEventsRoute: typeof AdminEventsRoute
   AdminForgotPasswordRoute: typeof AdminForgotPasswordRoute
+  AdminInquiriesRoute: typeof AdminInquiriesRoute
   AdminLoginRoute: typeof AdminLoginRoute
+  AdminMediaRoute: typeof AdminMediaRoute
   AdminMinistriesRoute: typeof AdminMinistriesRoute
+  AdminPrayerRequestsRoute: typeof AdminPrayerRequestsRoute
   AdminResetPasswordRoute: typeof AdminResetPasswordRoute
   AdminSermonsRoute: typeof AdminSermonsRoute
   AdminIndexRoute: typeof AdminIndexRoute
@@ -401,8 +461,11 @@ const AdminRouteRouteChildren: AdminRouteRouteChildren = {
   AdminContentRoute: AdminContentRoute,
   AdminEventsRoute: AdminEventsRoute,
   AdminForgotPasswordRoute: AdminForgotPasswordRoute,
+  AdminInquiriesRoute: AdminInquiriesRoute,
   AdminLoginRoute: AdminLoginRoute,
+  AdminMediaRoute: AdminMediaRoute,
   AdminMinistriesRoute: AdminMinistriesRoute,
+  AdminPrayerRequestsRoute: AdminPrayerRequestsRoute,
   AdminResetPasswordRoute: AdminResetPasswordRoute,
   AdminSermonsRoute: AdminSermonsRoute,
   AdminIndexRoute: AdminIndexRoute,
