@@ -26,16 +26,25 @@ function AdminLogin() {
     e.preventDefault();
     setError(null);
     setBusy(true);
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email: email.trim(),
-      password,
-    });
-    if (signInError) {
+    try {
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      });
+      if (signInError) {
+        setError(
+          "Sign-in failed. Check your email and password, or ask an administrator to confirm your account.",
+        );
+        return;
+      }
+
+      await navigate({ to: "/admin" });
+    } catch (cause) {
+      console.error("[Admin login] Could not complete sign-in.", cause);
+      setError("Sign-in could not be completed. Please try again.");
+    } finally {
       setBusy(false);
-      setError("Sign-in failed. Please check your email and password, or ask an administrator to confirm your access.");
-      return;
     }
-    navigate({ to: "/admin" });
   };
 
   const input =
@@ -47,7 +56,9 @@ function AdminLogin() {
         <div className="flex items-center gap-2">
           <Church className="h-7 w-7 text-gold" aria-hidden />
           <div>
-            <p className="font-heading text-lg font-bold leading-tight text-forest-deep">Chosen Fruit</p>
+            <p className="font-heading text-lg font-bold leading-tight text-forest-deep">
+              Chosen Fruit
+            </p>
             <p className="text-xs text-muted-foreground">Staff Administration</p>
           </div>
         </div>
@@ -56,31 +67,59 @@ function AdminLogin() {
           Access is limited to authorized church staff. Accounts are created by invitation only.
         </p>
         {error && (
-          <div role="alert" className="mt-4 flex items-center gap-2 rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+          <div
+            role="alert"
+            className="mt-4 flex items-center gap-2 rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive"
+          >
             <AlertCircle className="h-4 w-4 shrink-0" aria-hidden /> {error}
           </div>
         )}
         <form onSubmit={onSubmit} className="mt-6 space-y-4">
           <div>
-            <label htmlFor="email" className="text-sm font-medium">Email address</label>
-            <input id="email" type="email" required autoComplete="email" className={input}
-              value={email} onChange={(e) => setEmail(e.target.value)} />
+            <label htmlFor="email" className="text-sm font-medium">
+              Email address
+            </label>
+            <input
+              id="email"
+              type="email"
+              required
+              autoComplete="email"
+              className={input}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
           </div>
           <div>
-            <label htmlFor="password" className="text-sm font-medium">Password</label>
-            <input id="password" type="password" required autoComplete="current-password" className={input}
-              value={password} onChange={(e) => setPassword(e.target.value)} />
+            <label htmlFor="password" className="text-sm font-medium">
+              Password
+            </label>
+            <input
+              id="password"
+              type="password"
+              required
+              autoComplete="current-password"
+              className={input}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
           </div>
-          <button type="submit" disabled={busy}
-            className="w-full rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:bg-forest-deep disabled:opacity-60">
+          <button
+            type="submit"
+            disabled={busy}
+            className="w-full rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:bg-forest-deep disabled:opacity-60"
+          >
             {busy ? "Signing in…" : "Sign In"}
           </button>
         </form>
         <p className="mt-4 text-center text-sm">
-          <Link to="/admin/forgot-password" className="text-primary underline">Forgot your password?</Link>
+          <Link to="/admin/forgot-password" className="text-primary underline">
+            Forgot your password?
+          </Link>
         </p>
         <p className="mt-6 text-center text-xs text-muted-foreground">
-          <Link to="/" className="underline">Back to the public website</Link>
+          <Link to="/" className="underline">
+            Back to the public website
+          </Link>
         </p>
       </div>
     </div>

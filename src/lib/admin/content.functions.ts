@@ -18,11 +18,36 @@ const CONFIG: Record<
   Table,
   { permission: string; searchColumns: string[]; orderBy: string; schema: z.ZodTypeAny }
 > = {
-  pages: { permission: "content.read", searchColumns: ["title", "slug"], orderBy: "updated_at", schema: pageSchema },
-  sermons: { permission: "sermons.manage", searchColumns: ["title", "speaker"], orderBy: "sermon_date", schema: sermonSchema },
-  events: { permission: "events.manage", searchColumns: ["title", "venue"], orderBy: "starts_at", schema: eventSchema },
-  announcements: { permission: "announcements.manage", searchColumns: ["title"], orderBy: "created_at", schema: announcementSchema },
-  ministries: { permission: "ministries.manage", searchColumns: ["name"], orderBy: "display_order", schema: ministrySchema },
+  pages: {
+    permission: "content.read",
+    searchColumns: ["title", "slug"],
+    orderBy: "updated_at",
+    schema: pageSchema,
+  },
+  sermons: {
+    permission: "sermons.manage",
+    searchColumns: ["title", "speaker"],
+    orderBy: "sermon_date",
+    schema: sermonSchema,
+  },
+  events: {
+    permission: "events.manage",
+    searchColumns: ["title", "venue"],
+    orderBy: "starts_at",
+    schema: eventSchema,
+  },
+  announcements: {
+    permission: "announcements.manage",
+    searchColumns: ["title"],
+    orderBy: "created_at",
+    schema: announcementSchema,
+  },
+  ministries: {
+    permission: "ministries.manage",
+    searchColumns: ["name"],
+    orderBy: "display_order",
+    schema: ministrySchema,
+  },
 };
 
 const writePermission: Record<Table, string> = {
@@ -66,7 +91,9 @@ function makeList(table: Table) {
 function makeGet(table: Table) {
   return createServerFn({ method: "POST" })
     .middleware([requireSupabaseAuth])
-    .inputValidator((input: unknown) => z.object({ table: tableSchema, id: z.string().uuid() }).parse(input))
+    .inputValidator((input: unknown) =>
+      z.object({ table: tableSchema, id: z.string().uuid() }).parse(input),
+    )
     .handler(async ({ data, context }) => {
       await requirePermission(context, CONFIG[data.table].permission);
       const { data: row, error } = await context.supabase
@@ -83,7 +110,9 @@ function makeCreate(table: Table) {
   return createServerFn({ method: "POST" })
     .middleware([requireSupabaseAuth])
     .inputValidator((input: unknown) => {
-      const parsed = z.object({ table: tableSchema, values: z.record(z.string(), z.unknown()) }).parse(input);
+      const parsed = z
+        .object({ table: tableSchema, values: z.record(z.string(), z.unknown()) })
+        .parse(input);
       const values = CONFIG[parsed.table].schema.parse(parsed.values);
       return { table: parsed.table, values };
     })
@@ -94,14 +123,23 @@ function makeCreate(table: Table) {
         ...data.values,
         created_by: context.userId,
         published_at:
-          (data.values as { status?: string }).status === "published" ? new Date().toISOString() : null,
-      };
-      const { data: row, error } = await context.supabase.from(data.table).insert(values).select().single();
+          (data.values as Record<string, unknown> & { status?: string }).status === "published"
+            ? new Date().toISOString()
+            : null,
+      } as Record<string, unknown>;
+      const { data: row, error } = await context.supabase
+        .from(data.table)
+        .insert(values as never)
+        .select()
+        .single();
       if (error) {
-        if (error.code === "23505") throw new Error("That slug is already in use. Choose a different one.");
+        if (error.code === "23505")
+          throw new Error("That slug is already in use. Choose a different one.");
         throw new Error("Could not save the record.");
       }
-      await logAudit(context, `create_${data.table}`, data.table, row.id, { title: (values as { title?: string }).title });
+      await logAudit(context, `create_${data.table}`, data.table, row.id, {
+        title: typeof values["title"] === "string" ? values["title"] : null,
+      });
       return row;
     });
 }
@@ -111,26 +149,34 @@ function makeUpdate(table: Table) {
     .middleware([requireSupabaseAuth])
     .inputValidator((input: unknown) => {
       const parsed = z
-        .object({ table: tableSchema, id: z.string().uuid(), values: z.record(z.string(), z.unknown()) })
+        .object({
+          table: tableSchema,
+          id: z.string().uuid(),
+          values: z.record(z.string(), z.unknown()),
+        })
         .parse(input);
       const values = CONFIG[parsed.table].schema.parse(parsed.values);
       return { table: parsed.table, id: parsed.id, values };
     })
     .handler(async ({ data, context }) => {
       await requirePermission(context, writePermission[data.table]);
-      const patch: Record<string, unknown> = { ...data.values, updated_at: new Date().toISOString() };
-      if (data.values.status === "published") patch.published_at = new Date().toISOString();
+      const values = data.values as Record<string, unknown> & { status?: string };
+      const patch: Record<string, unknown> = { ...values, updated_at: new Date().toISOString() };
+      if (values.status === "published") patch["published_at"] = new Date().toISOString();
       const { data: row, error } = await context.supabase
         .from(data.table)
-        .update(patch)
+        .update(patch as never)
         .eq("id", data.id)
         .select()
         .single();
       if (error) {
-        if (error.code === "23505") throw new Error("That slug is already in use. Choose a different one.");
+        if (error.code === "23505")
+          throw new Error("That slug is already in use. Choose a different one.");
         throw new Error("Could not update the record.");
       }
-      await logAudit(context, `update_${data.table}`, data.table, data.id, { status: data.values.status });
+      await logAudit(context, `update_${data.table}`, data.table, data.id, {
+        status: typeof values.status === "string" ? values.status : null,
+      });
       return row;
     });
 }
@@ -138,7 +184,9 @@ function makeUpdate(table: Table) {
 function makeRemove(table: Table) {
   return createServerFn({ method: "POST" })
     .middleware([requireSupabaseAuth])
-    .inputValidator((input: unknown) => z.object({ table: tableSchema, id: z.string().uuid() }).parse(input))
+    .inputValidator((input: unknown) =>
+      z.object({ table: tableSchema, id: z.string().uuid() }).parse(input),
+    )
     .handler(async ({ data, context }) => {
       const perm = data.table === "pages" ? "content.publish" : writePermission[data.table];
       await requirePermission(context, perm);
@@ -185,43 +233,70 @@ export const getDashboardStats = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     await requirePermission(context, "dashboard.view");
     const s = context.supabase;
-    const count = async (table: Table, filter?: (q: any) => any) => {
-      let q = s.from(table).select("id", { count: "exact", head: true });
-      if (filter) q = filter(q);
-      const { count: c } = await q;
-      return c ?? 0;
+    const countPublished = async (table: Table) => {
+      const { count, error } = await s
+        .from(table)
+        .select("id", { count: "exact", head: true })
+        .eq("status", "published");
+      if (error) throw new Error(`Could not load the ${table} dashboard count.`);
+      return count ?? 0;
     };
-    const published = (q: any) => q.eq("status", "published");
     const now = new Date().toISOString();
 
     const [sermons, events, upcoming, announcements, ministries, pages] = await Promise.all([
-      count("sermons", published),
-      count("events", published),
-      count("events", (q) => q.eq("status", "published").gte("starts_at", now)),
-      count("announcements", published),
-      count("ministries", published),
-      count("pages", published),
+      countPublished("sermons"),
+      countPublished("events"),
+      (async () => {
+        const { count, error } = await s
+          .from("events")
+          .select("id", { count: "exact", head: true })
+          .eq("status", "published")
+          .gte("starts_at", now);
+        if (error) throw new Error("Could not load the upcoming-events dashboard count.");
+        return count ?? 0;
+      })(),
+      countPublished("announcements"),
+      countPublished("ministries"),
+      countPublished("pages"),
     ]);
 
     // Sensitive modules: only counted when the caller may read them.
     let inquiries: number | null = null;
     let prayerRequests: number | null = null;
-    const { data: canInquiries } = await s.rpc("has_permission", { _user_id: context.userId, _permission: "inquiries.read" });
-    const { data: canPrayer } = await s.rpc("has_permission", { _user_id: context.userId, _permission: "prayer_requests.read" });
+    const { data: canInquiries, error: inquiryPermissionError } = await s.rpc("has_permission", {
+      _user_id: context.userId,
+      _permission: "inquiries.read",
+    });
+    const { data: canPrayer, error: prayerPermissionError } = await s.rpc("has_permission", {
+      _user_id: context.userId,
+      _permission: "prayer_requests.read",
+    });
+    if (inquiryPermissionError || prayerPermissionError) {
+      throw new Error("Could not verify access to confidential dashboard counts.");
+    }
     if (canInquiries) {
-      const { count: c } = await s.from("inquiries").select("id", { count: "exact", head: true }).eq("status", "new");
+      const { count: c, error } = await s
+        .from("inquiries")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "new");
+      if (error) throw new Error("Could not load the new-inquiries dashboard count.");
       inquiries = c ?? 0;
     }
     if (canPrayer) {
-      const { count: c } = await s.from("prayer_requests").select("id", { count: "exact", head: true }).eq("status", "new");
+      const { count: c, error } = await s
+        .from("prayer_requests")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "new");
+      if (error) throw new Error("Could not load the new-prayer-requests dashboard count.");
       prayerRequests = c ?? 0;
     }
 
-    const { data: recentAudit } = await s
+    const { data: recentAudit, error: auditError } = await s
       .from("audit_logs")
       .select("id, action, entity_type, created_at")
       .order("created_at", { ascending: false })
       .limit(8);
+    if (auditError) throw new Error("Could not load recent audit activity.");
 
     return {
       sermons,

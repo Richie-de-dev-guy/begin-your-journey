@@ -43,9 +43,10 @@ export const updateInquiry = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await requirePermission(context, "inquiries.update");
     const { id, ...patch } = data;
+    const updatePayload = { ...patch, updated_at: new Date().toISOString() } as Record<string, string | null | undefined>;
     const { error } = await context.supabase
       .from("inquiries")
-      .update({ ...patch, updated_at: new Date().toISOString() })
+      .update(updatePayload as never)
       .eq("id", id);
     if (error) throw new Error("Could not update the inquiry.");
     await logAudit(context, "update_inquiry", "inquiries", id, { status: data.status });
@@ -93,9 +94,10 @@ export const updatePrayerRequest = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await requirePermission(context, "prayer_requests.update");
     const { id, ...patch } = data;
+    const updatePayload = { ...patch, updated_at: new Date().toISOString() } as Record<string, string | null | undefined>;
     const { error } = await context.supabase
       .from("prayer_requests")
-      .update({ ...patch, updated_at: new Date().toISOString() })
+      .update(updatePayload as never)
       .eq("id", id);
     if (error) throw new Error("Could not update the prayer request.");
     await logAudit(context, "update_prayer_request", "prayer_requests", id, { status: data.status });

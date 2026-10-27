@@ -38,7 +38,7 @@ function InquiriesAdmin() {
     queryKey: ["admin", "inquiries", filter],
     queryFn: () => list({ data: { page: 1, pageSize: 50, status: filter || undefined } }),
   });
-  const items = (data?.items ?? []) as Inquiry[];
+  const items = (data?.rows ?? []) as unknown as Inquiry[];
 
   const open = async (row: Inquiry) => {
     const full = (await fetchOne({ data: { id: row.id } })) as Inquiry;

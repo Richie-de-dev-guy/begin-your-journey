@@ -20,7 +20,7 @@ const fields: FieldDef[] = [
 
 const columns: ColumnDef[] = [
   { key: "title", label: "Title" },
-  { key: "slug", label: "Slug", render: (r) => `/pages/${String(r.slug)}` },
+  { key: "slug", label: "Slug", render: (r) => `/pages/${String(r["slug"])}` },
 ];
 
 function PagesAdmin() {
@@ -31,10 +31,15 @@ function PagesAdmin() {
       queryKey="pages"
       fields={fields}
       columns={columns}
-      listFn={listPages}
-      createFn={createPage}
-      updateFn={updatePage}
-      deleteFn={deletePage}
+      listFn={({ page, pageSize }) =>
+        listPages({ data: { table: "pages", query: { page, pageSize } } }).then((result) => ({
+          ...result,
+          rows: result.rows.map((row) => ({ ...row })),
+        }))
+      }
+      createFn={(values) => createPage({ data: { table: "pages", values } })}
+      updateFn={({ id, values }) => updatePage({ data: { table: "pages", id, values } })}
+      deleteFn={({ id }) => deletePage({ data: { table: "pages", id } })}
       emptyText="No custom pages yet. Create one to get started."
     />
   );

@@ -35,6 +35,14 @@ export const ROLE_LABELS: Record<string, string> = {
 };
 
 export const ASSIGNABLE_ROLES = Object.keys(ROLE_LABELS);
+export const STAFF_ROLES = [
+  "super_admin",
+  "pastor",
+  "content_editor",
+  "event_coordinator",
+  "support_staff",
+] as const;
+export type StaffRole = (typeof STAFF_ROLES)[number];
 
 export type AdminNavItem = {
   label: string;
@@ -54,5 +62,4 @@ export const ADMIN_NAV: AdminNavItem[] = [
   { label: "Prayer Requests", to: "/admin/prayer-requests", permission: "prayer_requests.read" },
   { label: "Staff", to: "/admin/users", permission: "users.manage" },
   { label: "Audit Log", to: "/admin/audit-logs", permission: "audit_logs.read" },
-  { label: "Settings", to: "/admin/settings", permission: "settings.manage" },
 ];

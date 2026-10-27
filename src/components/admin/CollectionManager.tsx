@@ -1,6 +1,5 @@
 import { useState, type FormEvent } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
 import { Plus, Pencil, Trash2, X, ChevronLeft, ChevronRight } from "lucide-react";
 
 export type FieldDef = {
@@ -25,10 +24,13 @@ type Props = {
   queryKey: string;
   fields: FieldDef[];
   columns: ColumnDef[];
-  listFn: unknown;
-  createFn: unknown;
-  updateFn: unknown;
-  deleteFn: unknown;
+  listFn: (args: { page: number; pageSize: number }) => Promise<{
+    rows: Record<string, unknown>[];
+    total: number;
+  }>;
+  createFn: (values: Record<string, unknown>) => Promise<unknown>;
+  updateFn: (args: { id: string; values: Record<string, unknown> }) => Promise<unknown>;
+  deleteFn: (args: { id: string }) => Promise<unknown>;
   emptyText: string;
 };
 
@@ -54,7 +56,7 @@ export function statusBadge(status: unknown) {
     archived: "bg-charcoal/10 text-charcoal",
   };
   return (
-    <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ${styles[s] ?? styles.draft}`}>
+    <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ${styles[s] ?? styles["draft"]}`}>
       {s.charAt(0).toUpperCase() + s.slice(1)}
     </span>
   );
@@ -71,10 +73,6 @@ export function CollectionManager({
   title, description, queryKey, fields, columns, listFn, createFn, updateFn, deleteFn, emptyText,
 }: Props) {
   const queryClient = useQueryClient();
-  const list = useServerFn(listFn as never) as (args: unknown) => Promise<{ items: Record<string, unknown>[]; total: number }>;
-  const create = useServerFn(createFn as never) as (args: unknown) => Promise<unknown>;
-  const update = useServerFn(updateFn as never) as (args: unknown) => Promise<unknown>;
-  const remove = useServerFn(deleteFn as never) as (args: unknown) => Promise<unknown>;
 
   const [page, setPage] = useState(1);
   const [editing, setEditing] = useState<Record<string, unknown> | null>(null);
@@ -84,10 +82,10 @@ export function CollectionManager({
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["admin", queryKey, page],
-    queryFn: () => list({ data: { page, pageSize: 20 } }),
+    queryFn: () => listFn({ page, pageSize: 20 }),
   });
 
-  const items = data?.items ?? [];
+  const items = data?.rows ?? [];
   const total = data?.total ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / 20));
 
@@ -127,10 +125,10 @@ export function CollectionManager({
         if (f.type === "date" && !v) v = undefined;
         payload[f.name] = v;
       }
-      if (editing?.id) {
-        await update({ data: { id: editing.id, ...payload } });
+      if (editing && editing["id"]) {
+        await updateFn({ id: String(editing["id"]), values: payload });
       } else {
-        await create({ data: payload });
+        await createFn(payload);
       }
       await queryClient.invalidateQueries({ queryKey: ["admin", queryKey] });
       setEditing(null);
@@ -142,9 +140,9 @@ export function CollectionManager({
   };
 
   const onDelete = async (row: Record<string, unknown>) => {
-    if (!window.confirm(`Delete "${String(row.title ?? row.name ?? "this item")}"? This cannot be undone.`)) return;
+    if (!window.confirm(`Delete "${String(row["title"] ?? row["name"] ?? "this item")}"? This cannot be undone.`)) return;
     try {
-      await remove({ data: { id: row.id } });
+      await deleteFn({ id: String(row["id"]) });
       await queryClient.invalidateQueries({ queryKey: ["admin", queryKey] });
     } catch {
       window.alert("Delete failed. You may not have permission to delete this item.");
@@ -191,13 +189,13 @@ export function CollectionManager({
               <tr><td colSpan={columns.length + 2} className="px-4 py-8 text-center text-muted-foreground">{emptyText}</td></tr>
             )}
             {items.map((row) => (
-              <tr key={String(row.id)} className="border-b border-border last:border-0">
+              <tr key={String(row["id"])} className="border-b border-border last:border-0">
                 {columns.map((c) => (
                   <td key={c.key} className="px-4 py-3">
                     {c.render ? c.render(row) : String(row[c.key] ?? "—")}
                   </td>
                 ))}
-                <td className="px-4 py-3">{statusBadge(row.status)}</td>
+                <td className="px-4 py-3">{statusBadge(row["status"])}</td>
                 <td className="px-4 py-3">
                   <div className="flex justify-end gap-1">
                     <button onClick={() => openEdit(row)} aria-label="Edit"
@@ -234,7 +232,7 @@ export function CollectionManager({
         <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-charcoal/60 p-4">
           <div className="my-8 w-full max-w-2xl rounded-2xl bg-ivory p-6 shadow-xl">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold">{editing.id ? "Edit" : "New"} {title.replace(/s$/, "")}</h2>
+              <h2 className="text-xl font-bold">{editing["id"] ? "Edit" : "New"} {title.replace(/s$/, "")}</h2>
               <button onClick={() => setEditing(null)} aria-label="Close" className="rounded-md p-2 hover:bg-muted">
                 <X className="h-5 w-5" aria-hidden />
               </button>

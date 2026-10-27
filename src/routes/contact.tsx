@@ -3,6 +3,7 @@ import { church } from "@/config/church";
 import { PageContainer } from "@/components/ui";
 import { ContactDetails, PageHero, PlaceholderNote } from "@/components/sections";
 import { ContactForm } from "@/components/ContactForm";
+import { PrayerRequestForm } from "@/components/PrayerRequestForm";
 
 const title = `Contact Us — ${church.shortName}`;
 const description = `Call ${church.phone} or email ${church.email}. Find us near ${church.landmark}, Calabar.`;
@@ -25,19 +26,32 @@ export const Route = createFileRoute("/contact")({
 function Contact() {
   return (
     <>
-      <PageHero eyebrow="Contact Us" title="We'd love to hear from you"
-        intro="Reach out with questions, prayer needs, or to learn more about our church." />
+      <PageHero
+        eyebrow="Contact Us"
+        title="We'd love to hear from you"
+        intro="Reach out with questions, prayer needs, or to learn more about our church."
+      />
       <section className="py-16">
         <PageContainer className="grid gap-10 lg:grid-cols-[1fr_1.4fr]">
           <div>
             <h2 className="text-2xl font-semibold">Get in touch</h2>
-            <PlaceholderNote>If you plan to visit, please contact us first to confirm service arrangements.</PlaceholderNote>
-            <div className="mt-6"><ContactDetails /></div>
+            <PlaceholderNote>
+              If you plan to visit, please contact us first to confirm service arrangements.
+            </PlaceholderNote>
+            <div className="mt-6">
+              <ContactDetails />
+            </div>
           </div>
           <div>
             <h2 className="mb-4 text-2xl font-semibold">Send a message</h2>
             <ContactForm />
           </div>
+        </PageContainer>
+      </section>
+      <section className="bg-muted py-16">
+        <PageContainer className="mx-auto max-w-3xl">
+          <h2 className="mb-4 text-2xl font-semibold">Share a prayer request</h2>
+          <PrayerRequestForm />
         </PageContainer>
       </section>
     </>

@@ -37,7 +37,7 @@ function PrayerAdmin() {
     queryKey: ["admin", "prayer-requests"],
     queryFn: () => list({ data: { page: 1, pageSize: 50 } }),
   });
-  const items = (data?.items ?? []) as PrayerRow[];
+  const items = (data?.rows ?? []) as unknown as PrayerRow[];
 
   const open = async (row: PrayerRow) => {
     const full = (await fetchOne({ data: { id: row.id } })) as PrayerRow;

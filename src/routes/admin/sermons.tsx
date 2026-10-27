@@ -26,7 +26,7 @@ const fields: FieldDef[] = [
 const columns: ColumnDef[] = [
   { key: "title", label: "Title" },
   { key: "speaker", label: "Speaker" },
-  { key: "sermon_date", label: "Date", render: (r) => (r.sermon_date ? String(r.sermon_date) : "—") },
+  { key: "sermon_date", label: "Date", render: (r) => (r["sermon_date"] ? String(r["sermon_date"]) : "—") },
 ];
 
 function SermonsAdmin() {
@@ -37,10 +37,15 @@ function SermonsAdmin() {
       queryKey="sermons"
       fields={fields}
       columns={columns}
-      listFn={listSermons}
-      createFn={createSermon}
-      updateFn={updateSermon}
-      deleteFn={deleteSermon}
+      listFn={({ page, pageSize }) =>
+        listSermons({ data: { table: "sermons", query: { page, pageSize } } }).then((result) => ({
+          ...result,
+          rows: result.rows.map((row) => ({ ...row })),
+        }))
+      }
+      createFn={(values) => createSermon({ data: { table: "sermons", values } })}
+      updateFn={({ id, values }) => updateSermon({ data: { table: "sermons", id, values } })}
+      deleteFn={({ id }) => deleteSermon({ data: { table: "sermons", id } })}
       emptyText="No sermons yet. Add the first one when a recording or summary is ready."
     />
   );

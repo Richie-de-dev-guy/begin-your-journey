@@ -6,12 +6,22 @@ import type { Sermon } from "@/content/sermons";
 import type { ChurchEvent } from "@/content/events";
 import { PageContainer } from "./ui";
 
-export function PageHero({ eyebrow, title, intro }: { eyebrow: string; title: string; intro?: string }) {
+export function PageHero({
+  eyebrow,
+  title,
+  intro,
+}: {
+  eyebrow: string;
+  title: string;
+  intro?: string;
+}) {
   return (
     <section className="bg-forest-deep py-16 text-primary-foreground sm:py-20">
       <PageContainer>
         <p className="text-sm font-semibold uppercase tracking-widest text-gold">{eyebrow}</p>
-        <h1 className="mt-3 max-w-3xl text-4xl font-bold text-primary-foreground sm:text-5xl">{title}</h1>
+        <h1 className="mt-3 max-w-3xl text-4xl font-bold text-primary-foreground sm:text-5xl">
+          {title}
+        </h1>
         {intro && <p className="mt-4 max-w-2xl text-lg text-primary-foreground/85">{intro}</p>}
       </PageContainer>
     </section>
@@ -38,7 +48,9 @@ export function ServiceTimes() {
         </div>
         <p className="mt-3 text-muted-foreground">
           Our service schedule will be published here soon. Please call{" "}
-          <a href={church.phoneHref} className="font-medium text-primary underline">{church.phone}</a>{" "}
+          <a href={church.phoneHref} className="font-medium text-primary underline">
+            {church.phone}
+          </a>{" "}
           to confirm service times before your visit.
         </p>
       </div>
@@ -76,7 +88,9 @@ export function ContactDetails() {
             <Icon className="h-5 w-5 text-primary" aria-hidden />
           </span>
           <span>
-            <span className="block text-xs uppercase tracking-wide text-muted-foreground">{label}</span>
+            <span className="block text-xs uppercase tracking-wide text-muted-foreground">
+              {label}
+            </span>
             <span className="break-all font-semibold text-forest-deep">{value}</span>
           </span>
         </a>
@@ -86,7 +100,9 @@ export function ContactDetails() {
           <MapPin className="h-5 w-5 text-primary" aria-hidden />
         </span>
         <div>
-          <span className="block text-xs uppercase tracking-wide text-muted-foreground">Address</span>
+          <span className="block text-xs uppercase tracking-wide text-muted-foreground">
+            Address
+          </span>
           <address className="not-italic font-semibold text-forest-deep">{church.address}</address>
           <p className="mt-1 text-sm text-muted-foreground">Landmark: {church.landmark}</p>
           <a
@@ -111,12 +127,22 @@ export function MinistryCard({ ministry }: { ministry: Ministry }) {
       </span>
       <h3 className="mt-4 text-xl font-semibold">{ministry.name}</h3>
       <p className="mt-2 flex-1 text-sm text-muted-foreground">{ministry.description}</p>
-      {ministry.schedule && <p className="mt-3 text-sm"><strong>Meets:</strong> {ministry.schedule}</p>}
-      {ministry.contact && <p className="mt-1 text-sm"><strong>Contact:</strong> {ministry.contact}</p>}
+      {ministry.schedule && (
+        <p className="mt-3 text-sm">
+          <strong>Meets:</strong> {ministry.schedule}
+        </p>
+      )}
+      {ministry.contact && (
+        <p className="mt-1 text-sm">
+          <strong>Contact:</strong> {ministry.contact}
+        </p>
+      )}
       {ministry.placeholder && (
         <p className="mt-4 text-xs italic text-muted-foreground">
           Details to be confirmed by the church.{" "}
-          <a href={church.emailHref} className="text-primary underline">Ask about this ministry</a>
+          <a href={church.emailHref} className="text-primary underline">
+            Ask about this ministry
+          </a>
         </p>
       )}
     </article>
@@ -124,23 +150,41 @@ export function MinistryCard({ ministry }: { ministry: Ministry }) {
 }
 
 const fmtDate = (iso: string) =>
-  new Date(iso).toLocaleDateString("en-NG", { year: "numeric", month: "long", day: "numeric" });
+  iso
+    ? new Date(iso).toLocaleDateString("en-NG", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
+    : "Date to be announced";
 
 export function SermonCard({ sermon }: { sermon: Sermon }) {
   return (
     <article className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
       {sermon.thumbnailUrl && (
-        <img src={sermon.thumbnailUrl} alt={`Thumbnail for ${sermon.title}`} loading="lazy" className="aspect-video w-full object-cover" />
+        <img
+          src={sermon.thumbnailUrl}
+          alt={`Thumbnail for ${sermon.title}`}
+          loading="lazy"
+          className="aspect-video w-full object-cover"
+        />
       )}
       <div className="p-5">
-        {sermon.topic && <p className="text-xs font-semibold uppercase tracking-wide text-gold">{sermon.topic}</p>}
+        {sermon.topic && (
+          <p className="text-xs font-semibold uppercase tracking-wide text-gold">{sermon.topic}</p>
+        )}
         <h3 className="mt-1 text-lg font-semibold">{sermon.title}</h3>
         <p className="mt-1 text-sm text-muted-foreground">
           {sermon.speaker} · {fmtDate(sermon.date)}
         </p>
         {sermon.passage && <p className="mt-1 text-sm">{sermon.passage}</p>}
         {sermon.mediaUrl && (
-          <a href={sermon.mediaUrl} target="_blank" rel="noopener noreferrer" className="mt-3 inline-block text-sm font-semibold text-primary underline">
+          <a
+            href={sermon.mediaUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-3 inline-block text-sm font-semibold text-primary underline"
+          >
             Watch / Listen
           </a>
         )}
@@ -153,17 +197,28 @@ export function EventCard({ event }: { event: ChurchEvent }) {
   return (
     <article className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
       {event.imageUrl && (
-        <img src={event.imageUrl} alt={event.title} loading="lazy" className="aspect-video w-full object-cover" />
+        <img
+          src={event.imageUrl}
+          alt={event.title}
+          loading="lazy"
+          className="aspect-video w-full object-cover"
+        />
       )}
       <div className="p-5">
         <p className="text-sm font-semibold text-gold">
-          {fmtDate(event.date)}{event.startTime ? ` · ${event.startTime}` : ""}
+          {fmtDate(event.date)}
+          {event.startTime ? ` · ${event.startTime}` : ""}
         </p>
         <h3 className="mt-1 text-lg font-semibold">{event.title}</h3>
         {event.venue && <p className="mt-1 text-sm text-muted-foreground">{event.venue}</p>}
         <p className="mt-2 text-sm">{event.description}</p>
         {event.registrationUrl && (
-          <a href={event.registrationUrl} target="_blank" rel="noopener noreferrer" className="mt-3 inline-block text-sm font-semibold text-primary underline">
+          <a
+            href={event.registrationUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-3 inline-block text-sm font-semibold text-primary underline"
+          >
             Register
           </a>
         )}

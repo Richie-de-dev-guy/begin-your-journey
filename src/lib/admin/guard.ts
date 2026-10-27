@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Database } from "@/integrations/supabase/types";
+import type { Database, Json } from "@/integrations/supabase/types";
 
 type Ctx = { supabase: SupabaseClient<Database>; userId: string };
 
@@ -15,21 +15,27 @@ export async function requirePermission(context: Ctx, permission: string) {
 
 export async function getPermissions(context: Ctx): Promise<string[]> {
   const perms = new Set<string>();
-  const { data: roles } = await context.supabase
+  const { data: roles, error: rolesError } = await context.supabase
     .from("user_roles")
     .select("role")
     .eq("user_id", context.userId);
+  if (rolesError) throw new Error("Unable to load staff roles for the current user.");
   if (roles?.length) {
-    const { data: rp } = await context.supabase
+    const { data: rp, error: rolePermissionsError } = await context.supabase
       .from("role_permissions")
       .select("permission")
-      .in("role", roles.map((r) => r.role));
+      .in(
+        "role",
+        roles.map((r) => r.role),
+      );
+    if (rolePermissionsError) throw new Error("Unable to load staff role permissions.");
     rp?.forEach((r) => perms.add(r.permission));
   }
-  const { data: up } = await context.supabase
+  const { data: up, error: userPermissionsError } = await context.supabase
     .from("user_permissions")
     .select("permission")
     .eq("user_id", context.userId);
+  if (userPermissionsError) throw new Error("Unable to load user permission overrides.");
   up?.forEach((r) => perms.add(r.permission));
   return [...perms];
 }
@@ -40,13 +46,17 @@ export async function logAudit(
   action: string,
   entityType: string,
   entityId?: string | null,
-  metadata: Record<string, unknown> = {},
+  metadata: Record<string, Json> = {},
 ) {
-  await context.supabase.from("audit_logs").insert({
+  const { error } = await context.supabase.from("audit_logs").insert({
     actor_id: context.userId,
     action,
     entity_type: entityType,
     entity_id: entityId ?? null,
     metadata,
   });
+  if (error) {
+    console.error("[Admin audit] Failed to record audit entry.", error);
+    throw new Error("The requested change was made, but its audit entry could not be recorded.");
+  }
 }

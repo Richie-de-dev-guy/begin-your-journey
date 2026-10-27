@@ -24,8 +24,8 @@ const fields: FieldDef[] = [
 
 const columns: ColumnDef[] = [
   { key: "title", label: "Title" },
-  { key: "starts_at", label: "Date", render: (r) => (r.starts_at ? new Date(String(r.starts_at)).toLocaleString("en-NG", { dateStyle: "medium", timeStyle: "short" }) : "—") },
-  { key: "venue", label: "Venue", render: (r) => String(r.venue ?? "—") },
+  { key: "starts_at", label: "Date", render: (r) => (r["starts_at"] ? new Date(String(r["starts_at"])).toLocaleString("en-NG", { dateStyle: "medium", timeStyle: "short" }) : "—") },
+  { key: "venue", label: "Venue", render: (r) => String(r["venue"] ?? "—") },
 ];
 
 function EventsAdmin() {
@@ -36,10 +36,15 @@ function EventsAdmin() {
       queryKey="events"
       fields={fields}
       columns={columns}
-      listFn={listEvents}
-      createFn={createEvent}
-      updateFn={updateEvent}
-      deleteFn={deleteEvent}
+      listFn={({ page, pageSize }) =>
+        listEvents({ data: { table: "events", query: { page, pageSize } } }).then((result) => ({
+          ...result,
+          rows: result.rows.map((row) => ({ ...row })),
+        }))
+      }
+      createFn={(values) => createEvent({ data: { table: "events", values } })}
+      updateFn={({ id, values }) => updateEvent({ data: { table: "events", id, values } })}
+      deleteFn={({ id }) => deleteEvent({ data: { table: "events", id } })}
       emptyText="No events yet. Add one when a date is confirmed."
     />
   );

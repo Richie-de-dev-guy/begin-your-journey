@@ -22,8 +22,8 @@ const fields: FieldDef[] = [
 
 const columns: ColumnDef[] = [
   { key: "name", label: "Name" },
-  { key: "schedule", label: "Schedule", render: (r) => String(r.schedule ?? "—") },
-  { key: "is_active", label: "Active", render: (r) => (r.is_active ? "Yes" : "No") },
+  { key: "schedule", label: "Schedule", render: (r) => String(r["schedule"] ?? "—") },
+  { key: "is_active", label: "Active", render: (r) => (r["is_active"] ? "Yes" : "No") },
 ];
 
 function MinistriesAdmin() {
@@ -34,10 +34,15 @@ function MinistriesAdmin() {
       queryKey="ministries"
       fields={fields}
       columns={columns}
-      listFn={listMinistries}
-      createFn={createMinistry}
-      updateFn={updateMinistry}
-      deleteFn={deleteMinistry}
+      listFn={({ page, pageSize }) =>
+        listMinistries({ data: { table: "ministries", query: { page, pageSize } } }).then((result) => ({
+          ...result,
+          rows: result.rows.map((row) => ({ ...row })),
+        }))
+      }
+      createFn={(values) => createMinistry({ data: { table: "ministries", values } })}
+      updateFn={({ id, values }) => updateMinistry({ data: { table: "ministries", id, values } })}
+      deleteFn={({ id }) => deleteMinistry({ data: { table: "ministries", id } })}
       emptyText="No ministries yet. Add only ministries the church has confirmed are operating."
     />
   );

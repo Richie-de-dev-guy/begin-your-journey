@@ -22,7 +22,7 @@ const fields: FieldDef[] = [
 const columns: ColumnDef[] = [
   { key: "title", label: "Title" },
   { key: "priority", label: "Priority" },
-  { key: "expires_at", label: "Expires", render: (r) => (r.expires_at ? new Date(String(r.expires_at)).toLocaleDateString("en-NG", { dateStyle: "medium" }) : "—") },
+  { key: "expires_at", label: "Expires", render: (r) => (r["expires_at"] ? new Date(String(r["expires_at"])).toLocaleDateString("en-NG", { dateStyle: "medium" }) : "—") },
 ];
 
 function AnnouncementsAdmin() {
@@ -33,10 +33,15 @@ function AnnouncementsAdmin() {
       queryKey="announcements"
       fields={fields}
       columns={columns}
-      listFn={listAnnouncements}
-      createFn={createAnnouncement}
-      updateFn={updateAnnouncement}
-      deleteFn={deleteAnnouncement}
+      listFn={({ page, pageSize }) =>
+        listAnnouncements({ data: { table: "announcements", query: { page, pageSize } } }).then((result) => ({
+          ...result,
+          rows: result.rows.map((row) => ({ ...row })),
+        }))
+      }
+      createFn={(values) => createAnnouncement({ data: { table: "announcements", values } })}
+      updateFn={({ id, values }) => updateAnnouncement({ data: { table: "announcements", id, values } })}
+      deleteFn={({ id }) => deleteAnnouncement({ data: { table: "announcements", id } })}
       emptyText="No announcements yet."
     />
   );

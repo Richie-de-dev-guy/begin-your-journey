@@ -40,7 +40,7 @@ function MediaAdmin() {
     queryKey: ["admin", "media"],
     queryFn: () => list({ data: { page: 1, pageSize: 60 } }),
   });
-  const items = (data?.items ?? []) as MediaRow[];
+  const items = (data?.rows ?? []) as MediaRow[];
 
   const onUpload = async (files: FileList | null) => {
     if (!files?.length) return;
