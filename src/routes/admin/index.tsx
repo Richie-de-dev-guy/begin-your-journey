@@ -10,6 +10,7 @@ import {
   Inbox,
   HandHeart,
   ScrollText,
+  Info,
 } from "lucide-react";
 import { getDashboardStats } from "@/lib/admin/content.functions";
 import { church } from "@/config/church";
@@ -72,6 +73,18 @@ function AdminDashboard() {
             <p className="mt-2 text-3xl font-bold text-forest-deep">{data?.[key] ?? 0}</p>
           </Link>
         ))}
+        {data?.canEditAbout && (
+          <Link
+            to="/admin/about"
+            className="rounded-xl border border-border bg-card p-5 transition-shadow hover:shadow-md"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-muted-foreground">About page</span>
+              <Info className="h-5 w-5 text-gold" aria-hidden />
+            </div>
+            <p className="mt-2 text-sm font-semibold text-forest-deep">Edit public About content</p>
+          </Link>
+        )}
       </div>
 
       {(newInquiries !== null || newPrayer !== null) && (

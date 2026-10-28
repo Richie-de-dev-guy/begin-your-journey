@@ -83,22 +83,42 @@ function MediaAdmin() {
         <div>
           <h1 className="text-2xl font-bold">Media Library</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Upload images (JPEG, PNG, WebP, GIF — max 5 MB), then copy the image URL into a page, sermon, event, or ministry.
+            Upload images (JPEG, PNG, WebP, GIF — max 5 MB), then copy the image URL into a page,
+            sermon, event, or ministry.
           </p>
         </div>
-        <button onClick={() => fileInput.current?.click()} disabled={busy}
-          className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-forest-deep disabled:opacity-60">
+        <button
+          onClick={() => fileInput.current?.click()}
+          disabled={busy}
+          className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-forest-deep disabled:opacity-60"
+        >
           <Upload className="h-4 w-4" aria-hidden /> {busy ? "Uploading…" : "Upload"}
         </button>
-        <input ref={fileInput} type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple
-          className="hidden" onChange={(e) => onUpload(e.target.files)} aria-label="Upload images" />
+        <input
+          ref={fileInput}
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/gif"
+          multiple
+          className="hidden"
+          onChange={(e) => onUpload(e.target.files)}
+          aria-label="Upload images"
+        />
       </div>
 
-      {error && <div role="alert" className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</div>}
+      {error && (
+        <div
+          role="alert"
+          className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive"
+        >
+          {error}
+        </div>
+      )}
 
       {isLoading && <p className="text-sm text-muted-foreground">Loading…</p>}
       {isError && (
-        <p className="text-sm text-destructive">Could not load the media library. You may not have permission to view it.</p>
+        <p className="text-sm text-destructive">
+          Could not load the media library. You may not have permission to view it.
+        </p>
       )}
       {!isLoading && !isError && items.length === 0 && (
         <p className="rounded-xl border border-dashed border-border bg-card px-4 py-10 text-center text-sm text-muted-foreground">
@@ -109,18 +129,34 @@ function MediaAdmin() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((row) => (
           <figure key={row.id} className="overflow-hidden rounded-xl border border-border bg-card">
-            <img src={row.public_url} alt={row.alt_text ?? row.file_name} className="h-40 w-full object-cover" loading="lazy" />
+            <img
+              src={row.public_url}
+              alt={row.alt_text ?? row.file_name}
+              className="h-40 w-full object-cover"
+              loading="lazy"
+            />
             <figcaption className="space-y-2 p-3">
-              <p className="truncate text-sm font-medium" title={row.file_name}>{row.file_name}</p>
+              <p className="truncate text-sm font-medium" title={row.file_name}>
+                {row.file_name}
+              </p>
               <p className="text-xs text-muted-foreground">{formatSize(row.size_bytes)}</p>
               <div className="flex gap-1">
-                <button onClick={() => copyUrl(row)}
-                  className="flex flex-1 items-center justify-center gap-1 rounded-md border border-border px-2 py-1.5 text-xs font-medium hover:bg-muted">
-                  {copied === row.id ? <Check className="h-3.5 w-3.5 text-primary" aria-hidden /> : <Copy className="h-3.5 w-3.5" aria-hidden />}
+                <button
+                  onClick={() => copyUrl(row)}
+                  className="flex flex-1 items-center justify-center gap-1 rounded-md border border-border px-2 py-1.5 text-xs font-medium hover:bg-muted"
+                >
+                  {copied === row.id ? (
+                    <Check className="h-3.5 w-3.5 text-primary" aria-hidden />
+                  ) : (
+                    <Copy className="h-3.5 w-3.5" aria-hidden />
+                  )}
                   {copied === row.id ? "Copied" : "Copy URL"}
                 </button>
-                <button onClick={() => onDelete(row)} aria-label={`Delete ${row.file_name}`}
-                  className="rounded-md border border-border px-2 py-1.5 text-xs text-muted-foreground hover:bg-destructive/10 hover:text-destructive">
+                <button
+                  onClick={() => onDelete(row)}
+                  aria-label={`Delete ${row.file_name}`}
+                  className="rounded-md border border-border px-2 py-1.5 text-xs text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                >
                   <Trash2 className="h-3.5 w-3.5" aria-hidden />
                 </button>
               </div>

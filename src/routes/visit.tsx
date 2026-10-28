@@ -32,8 +32,11 @@ const expect = [
 function Visit() {
   return (
     <>
-      <PageHero eyebrow="Plan Your Visit" title="You're welcome here"
-        intro="We'd be delighted to have you join us. Here's what you need to know before you come." />
+      <PageHero
+        eyebrow="Plan Your Visit"
+        title="You're welcome here"
+        intro="We'd be delighted to have you join us. Here's what you need to know before you come."
+      />
       <section className="py-16">
         <PageContainer className="grid gap-10 lg:grid-cols-2">
           <div className="space-y-6">
@@ -58,7 +61,9 @@ function Visit() {
       </section>
       <section className="bg-muted py-16">
         <PageContainer className="max-w-3xl">
-          <h2 className="mb-4 text-center text-2xl font-semibold">Have a question before you visit?</h2>
+          <h2 className="mb-4 text-center text-2xl font-semibold">
+            Have a question before you visit?
+          </h2>
           <ContactForm defaultSubject="Planning a visit" />
         </PageContainer>
       </section>

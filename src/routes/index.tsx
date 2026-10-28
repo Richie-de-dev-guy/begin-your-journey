@@ -15,7 +15,6 @@ import {
   MinistryCard,
   PlaceholderNote,
   SermonCard,
-  ServiceTimes,
 } from "@/components/sections";
 import {
   listLiveAnnouncements,
@@ -26,7 +25,7 @@ import {
 
 const title = `${church.name} — Church in Calabar`;
 const description =
-  "A Pentecostal / Charismatic Christian ministry in Calabar, Cross River State. Join us to grow in faith, fellowship, and God's Word.";
+  "A Pentecostal / Prophetic Christian ministry in Calabar, Cross River State. Join us to grow in faith, fellowship, and God's Word.";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -97,6 +96,7 @@ function Home() {
     slug: row.slug,
     name: row.name,
     description: row.description,
+    ...(row.featured_image_url ? { imageUrl: row.featured_image_url } : {}),
     ...(row.schedule ? { schedule: row.schedule } : {}),
     ...(row.contact ? { contact: row.contact } : {}),
     placeholder: false,
@@ -173,23 +173,6 @@ function Home() {
               </div>
             ))}
           </div>
-        </PageContainer>
-      </section>
-
-      <section className="bg-muted py-20">
-        <PageContainer className="grid items-center gap-10 lg:grid-cols-2">
-          <div>
-            <SectionHeading
-              align="left"
-              eyebrow="Worship & Fellowship"
-              title="Come as you are"
-              intro="Our gatherings are times of praise, prayer, and teaching from God's Word, where people of every age and background are welcome."
-            />
-            <div className="mt-6">
-              <SecondaryButton to="/about">Learn About Us</SecondaryButton>
-            </div>
-          </div>
-          <ServiceTimes />
         </PageContainer>
       </section>
 

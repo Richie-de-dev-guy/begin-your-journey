@@ -60,172 +60,131 @@ const writePermission: Record<Table, string> = {
 
 const tableSchema = z.enum(["pages", "sermons", "events", "announcements", "ministries"]);
 
-function makeList(table: Table) {
-  return createServerFn({ method: "POST" })
-    .middleware([requireSupabaseAuth])
-    .inputValidator((input: unknown) =>
-      z.object({ table: tableSchema, query: listQuerySchema }).parse(input),
-    )
-    .handler(async ({ data, context }) => {
-      const cfg = CONFIG[data.table];
-      await requirePermission(context, cfg.permission);
-      const { search, status, page, pageSize } = data.query;
-      let q = context.supabase
-        .from(data.table)
-        .select("*", { count: "exact" })
-        .order(cfg.orderBy, { ascending: false, nullsFirst: false })
-        .range((page - 1) * pageSize, page * pageSize - 1);
-      if (status && ["draft", "published", "archived"].includes(status)) {
-        q = q.eq("status", status as "draft" | "published" | "archived");
-      }
-      if (search) {
-        const like = `%${search.replace(/[%_,()"]/g, "")}%`;
-        q = q.or(cfg.searchColumns.map((c) => `${c}.ilike."${like}"`).join(","));
-      }
-      const { data: rows, count, error } = await q;
-      if (error) throw new Error("Could not load records.");
-      return { rows: rows ?? [], total: count ?? 0, page, pageSize };
-    });
+function contentWriteError(action: "save" | "update", table: Table, code?: string): Error {
+  if (code === "42703") {
+    return new Error("The database schema is out of date. Run bun run db:push and try again.");
+  }
+  if (code === "42501") {
+    return new Error(
+      "The database denied this change. Check that your staff role has the required permission.",
+    );
+  }
+  if (code === "23505") {
+    return new Error("That slug is already in use. Choose a different one.");
+  }
+
+  console.error(
+    `[Admin content] Could not ${action} ${table}. Database error code: ${code ?? "unknown"}.`,
+  );
+  return new Error(`Could not ${action} this record. Check the server log for the database error.`);
 }
 
-function makeGet(table: Table) {
-  return createServerFn({ method: "POST" })
-    .middleware([requireSupabaseAuth])
-    .inputValidator((input: unknown) =>
-      z.object({ table: tableSchema, id: z.string().uuid() }).parse(input),
-    )
-    .handler(async ({ data, context }) => {
-      await requirePermission(context, CONFIG[data.table].permission);
-      const { data: row, error } = await context.supabase
-        .from(data.table)
-        .select("*")
-        .eq("id", data.id)
-        .single();
-      if (error) throw new Error("Record not found.");
-      return row;
+export const listContent = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({ table: tableSchema, query: listQuerySchema }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const cfg = CONFIG[data.table];
+    await requirePermission(context, cfg.permission);
+    const { search, status, page, pageSize } = data.query;
+    let q = context.supabase
+      .from(data.table)
+      .select("*", { count: "exact" })
+      .order(cfg.orderBy, { ascending: false, nullsFirst: false })
+      .range((page - 1) * pageSize, page * pageSize - 1);
+    if (status && ["draft", "published", "archived"].includes(status)) {
+      q = q.eq("status", status as "draft" | "published" | "archived");
+    }
+    if (search) {
+      const like = `%${search.replace(/[%_,()"]/g, "")}%`;
+      q = q.or(cfg.searchColumns.map((c) => `${c}.ilike."${like}"`).join(","));
+    }
+    const { data: rows, count, error } = await q;
+    if (error) throw new Error("Could not load records.");
+    return { rows: rows ?? [], total: count ?? 0, page, pageSize };
+  });
+
+export const createContent = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => {
+    const parsed = z
+      .object({ table: tableSchema, values: z.record(z.string(), z.unknown()) })
+      .parse(input);
+    const values = CONFIG[parsed.table].schema.parse(parsed.values);
+    return { table: parsed.table, values };
+  })
+  .handler(async ({ data, context }) => {
+    const perm = data.table === "pages" ? "content.create" : writePermission[data.table];
+    await requirePermission(context, perm);
+    const values = {
+      ...data.values,
+      created_by: context.userId,
+    } as Record<string, unknown>;
+    if (data.table !== "ministries") {
+      values["published_at"] =
+        (data.values as Record<string, unknown> & { status?: string }).status === "published"
+          ? new Date().toISOString()
+          : null;
+    }
+    const { data: row, error } = await context.supabase
+      .from(data.table)
+      .insert(values as never)
+      .select()
+      .single();
+    if (error) throw contentWriteError("save", data.table, error.code);
+    await logAudit(context, `create_${data.table}`, data.table, row.id, {
+      title: typeof values["title"] === "string" ? values["title"] : null,
     });
-}
+    return row;
+  });
 
-function makeCreate(table: Table) {
-  return createServerFn({ method: "POST" })
-    .middleware([requireSupabaseAuth])
-    .inputValidator((input: unknown) => {
-      const parsed = z
-        .object({ table: tableSchema, values: z.record(z.string(), z.unknown()) })
-        .parse(input);
-      const values = CONFIG[parsed.table].schema.parse(parsed.values);
-      return { table: parsed.table, values };
-    })
-    .handler(async ({ data, context }) => {
-      const perm = data.table === "pages" ? "content.create" : writePermission[data.table];
-      await requirePermission(context, perm);
-      const values = {
-        ...data.values,
-        created_by: context.userId,
-        published_at:
-          (data.values as Record<string, unknown> & { status?: string }).status === "published"
-            ? new Date().toISOString()
-            : null,
-      } as Record<string, unknown>;
-      const { data: row, error } = await context.supabase
-        .from(data.table)
-        .insert(values as never)
-        .select()
-        .single();
-      if (error) {
-        if (error.code === "23505")
-          throw new Error("That slug is already in use. Choose a different one.");
-        throw new Error("Could not save the record.");
-      }
-      await logAudit(context, `create_${data.table}`, data.table, row.id, {
-        title: typeof values["title"] === "string" ? values["title"] : null,
-      });
-      return row;
+export const updateContent = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => {
+    const parsed = z
+      .object({
+        table: tableSchema,
+        id: z.string().uuid(),
+        values: z.record(z.string(), z.unknown()),
+      })
+      .parse(input);
+    const values = CONFIG[parsed.table].schema.parse(parsed.values);
+    return { table: parsed.table, id: parsed.id, values };
+  })
+  .handler(async ({ data, context }) => {
+    await requirePermission(context, writePermission[data.table]);
+    const values = data.values as Record<string, unknown> & { status?: string };
+    const patch: Record<string, unknown> = { ...values, updated_at: new Date().toISOString() };
+    if (data.table !== "ministries" && values.status === "published") {
+      patch["published_at"] = new Date().toISOString();
+    }
+    const { data: row, error } = await context.supabase
+      .from(data.table)
+      .update(patch as never)
+      .eq("id", data.id)
+      .select()
+      .single();
+    if (error) throw contentWriteError("update", data.table, error.code);
+    await logAudit(context, `update_${data.table}`, data.table, data.id, {
+      status: typeof values.status === "string" ? values.status : null,
     });
-}
+    return row;
+  });
 
-function makeUpdate(table: Table) {
-  return createServerFn({ method: "POST" })
-    .middleware([requireSupabaseAuth])
-    .inputValidator((input: unknown) => {
-      const parsed = z
-        .object({
-          table: tableSchema,
-          id: z.string().uuid(),
-          values: z.record(z.string(), z.unknown()),
-        })
-        .parse(input);
-      const values = CONFIG[parsed.table].schema.parse(parsed.values);
-      return { table: parsed.table, id: parsed.id, values };
-    })
-    .handler(async ({ data, context }) => {
-      await requirePermission(context, writePermission[data.table]);
-      const values = data.values as Record<string, unknown> & { status?: string };
-      const patch: Record<string, unknown> = { ...values, updated_at: new Date().toISOString() };
-      if (values.status === "published") patch["published_at"] = new Date().toISOString();
-      const { data: row, error } = await context.supabase
-        .from(data.table)
-        .update(patch as never)
-        .eq("id", data.id)
-        .select()
-        .single();
-      if (error) {
-        if (error.code === "23505")
-          throw new Error("That slug is already in use. Choose a different one.");
-        throw new Error("Could not update the record.");
-      }
-      await logAudit(context, `update_${data.table}`, data.table, data.id, {
-        status: typeof values.status === "string" ? values.status : null,
-      });
-      return row;
-    });
-}
-
-function makeRemove(table: Table) {
-  return createServerFn({ method: "POST" })
-    .middleware([requireSupabaseAuth])
-    .inputValidator((input: unknown) =>
-      z.object({ table: tableSchema, id: z.string().uuid() }).parse(input),
-    )
-    .handler(async ({ data, context }) => {
-      const perm = data.table === "pages" ? "content.publish" : writePermission[data.table];
-      await requirePermission(context, perm);
-      const { error } = await context.supabase.from(data.table).delete().eq("id", data.id);
-      if (error) throw new Error("Could not delete the record.");
-      await logAudit(context, `delete_${data.table}`, data.table, data.id);
-      return { ok: true };
-    });
-}
-
-export const listPages = makeList("pages");
-export const getPage = makeGet("pages");
-export const createPage = makeCreate("pages");
-export const updatePage = makeUpdate("pages");
-export const deletePage = makeRemove("pages");
-
-export const listSermons = makeList("sermons");
-export const getSermon = makeGet("sermons");
-export const createSermon = makeCreate("sermons");
-export const updateSermon = makeUpdate("sermons");
-export const deleteSermon = makeRemove("sermons");
-
-export const listEvents = makeList("events");
-export const getEvent = makeGet("events");
-export const createEvent = makeCreate("events");
-export const updateEvent = makeUpdate("events");
-export const deleteEvent = makeRemove("events");
-
-export const listAnnouncements = makeList("announcements");
-export const getAnnouncement = makeGet("announcements");
-export const createAnnouncement = makeCreate("announcements");
-export const updateAnnouncement = makeUpdate("announcements");
-export const deleteAnnouncement = makeRemove("announcements");
-
-export const listMinistries = makeList("ministries");
-export const getMinistry = makeGet("ministries");
-export const createMinistry = makeCreate("ministries");
-export const updateMinistry = makeUpdate("ministries");
-export const deleteMinistry = makeRemove("ministries");
+export const deleteContent = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({ table: tableSchema, id: z.string().uuid() }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const perm = data.table === "pages" ? "content.publish" : writePermission[data.table];
+    await requirePermission(context, perm);
+    const { error } = await context.supabase.from(data.table).delete().eq("id", data.id);
+    if (error) throw new Error("Could not delete the record.");
+    await logAudit(context, `delete_${data.table}`, data.table, data.id);
+    return { ok: true };
+  });
 
 /** Dashboard overview counts from real records. */
 export const getDashboardStats = createServerFn({ method: "GET" })
@@ -271,7 +230,20 @@ export const getDashboardStats = createServerFn({ method: "GET" })
       _user_id: context.userId,
       _permission: "prayer_requests.read",
     });
-    if (inquiryPermissionError || prayerPermissionError) {
+    const [
+      { data: canEditAbout, error: aboutPermissionError },
+      { data: isSuperAdmin, error: roleError },
+    ] = await Promise.all([
+      s.rpc("has_permission", {
+        _user_id: context.userId,
+        _permission: "settings.manage",
+      }),
+      s.rpc("has_role", {
+        _user_id: context.userId,
+        _role: "super_admin",
+      }),
+    ]);
+    if (inquiryPermissionError || prayerPermissionError || aboutPermissionError || roleError) {
       throw new Error("Could not verify access to confidential dashboard counts.");
     }
     if (canInquiries) {
@@ -307,6 +279,7 @@ export const getDashboardStats = createServerFn({ method: "GET" })
       pages,
       inquiries,
       prayerRequests,
+      canEditAbout: Boolean(canEditAbout && isSuperAdmin),
       recentActivity: recentAudit ?? [],
     };
   });

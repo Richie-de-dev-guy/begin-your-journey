@@ -56,7 +56,9 @@ function ResetPassword() {
     const { error: updateError } = await supabase.auth.updateUser({ password });
     setBusy(false);
     if (updateError) {
-      setError("Could not set the new password. The link may have expired — please request a new one.");
+      setError(
+        "Could not set the new password. The link may have expired — please request a new one.",
+      );
       return;
     }
     setDone(true);
@@ -73,32 +75,64 @@ function ResetPassword() {
         {done ? (
           <div role="status" className="mt-4">
             <CheckCircle2 className="h-8 w-8 text-primary" aria-hidden />
-            <p className="mt-3 text-sm text-muted-foreground">Your password has been updated. Taking you to the dashboard…</p>
+            <p className="mt-3 text-sm text-muted-foreground">
+              Your password has been updated. Taking you to the dashboard…
+            </p>
           </div>
         ) : !ready ? (
           <p className="mt-4 text-sm text-muted-foreground">
-            This page is reached from the password-reset link in your email. If you arrived here directly, please{" "}
-            <Link to="/admin/forgot-password" className="text-primary underline">request a new reset link</Link>.
+            This page is reached from the password-reset link in your email. If you arrived here
+            directly, please{" "}
+            <Link to="/admin/forgot-password" className="text-primary underline">
+              request a new reset link
+            </Link>
+            .
           </p>
         ) : (
           <form onSubmit={onSubmit} className="mt-6 space-y-4">
             {error && (
-              <div role="alert" className="flex items-center gap-2 rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              <div
+                role="alert"
+                className="flex items-center gap-2 rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive"
+              >
                 <AlertCircle className="h-4 w-4 shrink-0" aria-hidden /> {error}
               </div>
             )}
             <div>
-              <label htmlFor="password" className="text-sm font-medium">New password</label>
-              <input id="password" type="password" required minLength={8} autoComplete="new-password" className={input}
-                value={password} onChange={(e) => setPassword(e.target.value)} />
+              <label htmlFor="password" className="text-sm font-medium">
+                New password
+              </label>
+              <input
+                id="password"
+                type="password"
+                required
+                minLength={8}
+                autoComplete="new-password"
+                className={input}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
             </div>
             <div>
-              <label htmlFor="confirm" className="text-sm font-medium">Confirm new password</label>
-              <input id="confirm" type="password" required minLength={8} autoComplete="new-password" className={input}
-                value={confirm} onChange={(e) => setConfirm(e.target.value)} />
+              <label htmlFor="confirm" className="text-sm font-medium">
+                Confirm new password
+              </label>
+              <input
+                id="confirm"
+                type="password"
+                required
+                minLength={8}
+                autoComplete="new-password"
+                className={input}
+                value={confirm}
+                onChange={(e) => setConfirm(e.target.value)}
+              />
             </div>
-            <button type="submit" disabled={busy}
-              className="w-full rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:bg-forest-deep disabled:opacity-60">
+            <button
+              type="submit"
+              disabled={busy}
+              className="w-full rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:bg-forest-deep disabled:opacity-60"
+            >
               {busy ? "Saving…" : "Save New Password"}
             </button>
           </form>

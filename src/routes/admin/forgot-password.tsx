@@ -49,19 +49,32 @@ function ForgotPassword() {
               Enter your staff email address and we will send you a reset link.
             </p>
             <div>
-              <label htmlFor="email" className="text-sm font-medium">Email address</label>
-              <input id="email" type="email" required autoComplete="email"
+              <label htmlFor="email" className="text-sm font-medium">
+                Email address
+              </label>
+              <input
+                id="email"
+                type="email"
+                required
+                autoComplete="email"
                 className="mt-1 block w-full rounded-lg border border-input bg-card px-3 py-2.5 text-sm focus:border-gold focus:outline-none focus:ring-2 focus:ring-ring"
-                value={email} onChange={(e) => setEmail(e.target.value)} />
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
             </div>
-            <button type="submit" disabled={busy}
-              className="w-full rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:bg-forest-deep disabled:opacity-60">
+            <button
+              type="submit"
+              disabled={busy}
+              className="w-full rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:bg-forest-deep disabled:opacity-60"
+            >
               {busy ? "Sending…" : "Send Reset Link"}
             </button>
           </form>
         )}
         <p className="mt-4 text-center text-sm">
-          <Link to="/admin/login" className="text-primary underline">Back to sign in</Link>
+          <Link to="/admin/login" className="text-primary underline">
+            Back to sign in
+          </Link>
         </p>
       </div>
     </div>

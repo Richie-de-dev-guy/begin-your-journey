@@ -136,6 +136,13 @@ grant select, update on public.profiles to authenticated;
 grant select on public.user_roles, public.user_permissions, public.role_permissions to authenticated;
 
 -- drizzle-statement
+-- drizzle-statement
+grant select on public.about_sections to anon;
+
+-- drizzle-statement
+grant select, insert, update on public.about_sections to authenticated;
+
+-- drizzle-statement
 grant select, insert on public.audit_logs to authenticated;
 
 -- drizzle-statement
@@ -154,10 +161,20 @@ grant select on public.pages, public.sermons, public.events, public.announcement
   public.ministries, public.media_assets to anon;
 
 -- drizzle-statement
+insert into public.about_sections (key, title, body, is_placeholder, display_order) values
+  ('story', 'Our Story', 'The history of the ministry will be shared here.', true, 1),
+  ('vision', 'Our Vision', 'The church''s official vision statement will appear here.', true, 2),
+  ('mission', 'Our Mission', 'The church''s official mission statement will appear here.', true, 3),
+  ('core_values', 'Core Values', 'The church''s core values will be listed here.', true, 4),
+  ('statement_of_faith', 'Statement of Faith', 'The church''s statement of faith will be published here.', true, 5),
+  ('leadership', 'Our Leadership', 'An introduction to the church''s pastors and leaders will appear here.', true, 6)
+on conflict (key) do nothing;
+
+-- drizzle-statement
 grant all on public.profiles, public.user_roles, public.user_permissions, public.role_permissions,
   public.audit_logs, public.pages, public.sermons, public.events, public.announcements,
   public.ministries, public.media_assets, public.inquiries, public.prayer_requests,
-  public.staff_invitations to service_role;
+  public.staff_invitations, public.about_sections to service_role;
 
 -- drizzle-statement
 insert into storage.buckets (id, name, public)

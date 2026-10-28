@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Menu, X, Church } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { church, navItems } from "@/config/church";
 
 export function SiteHeader() {
@@ -28,7 +28,7 @@ export function SiteHeader() {
           aria-label={`${church.name} — home`}
           onClick={() => setOpen(false)}
         >
-          <Church className="h-6 w-6 text-gold" aria-hidden />
+          <img src="/cfcm-logo.png" alt="" className="h-10 w-10 shrink-0 object-contain" />
           <span className="font-heading text-lg font-bold leading-tight">
             Chosen Fruit
             <span className="block text-xs font-normal tracking-wide text-muted-foreground">

@@ -1,6 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { CollectionManager, statusField, type FieldDef, type ColumnDef } from "@/components/admin/CollectionManager";
-import { listSermons, createSermon, updateSermon, deleteSermon } from "@/lib/admin/content.functions";
+import { useServerFn } from "@tanstack/react-start";
+import {
+  CollectionManager,
+  statusField,
+  type FieldDef,
+  type ColumnDef,
+} from "@/components/admin/CollectionManager";
+import {
+  listContent,
+  createContent,
+  updateContent,
+  deleteContent,
+} from "@/lib/admin/content.functions";
 import { church } from "@/config/church";
 
 export const Route = createFileRoute("/admin/sermons")({
@@ -11,14 +22,30 @@ export const Route = createFileRoute("/admin/sermons")({
 const fields: FieldDef[] = [
   { name: "title", label: "Sermon title", type: "text", required: true },
   { name: "speaker", label: "Speaker", type: "text", required: true },
-  { name: "slug", label: "Slug", type: "text", required: true, help: "Unique web identifier, e.g. 'faith-that-bears-fruit'." },
+  {
+    name: "slug",
+    label: "Slug",
+    type: "text",
+    required: true,
+    help: "Unique web identifier, e.g. 'faith-that-bears-fruit'.",
+  },
   { name: "sermon_date", label: "Date preached", type: "date" },
   { name: "passage", label: "Scripture passage", type: "text", placeholder: "e.g. John 15:1-8" },
   { name: "topic", label: "Topic / series", type: "text" },
   { name: "description", label: "Summary", type: "textarea" },
-  { name: "video_url", label: "Video URL", type: "url", help: "Link to a hosted video (e.g. YouTube). No livestream is embedded on the site." },
+  {
+    name: "video_url",
+    label: "Video URL",
+    type: "url",
+    help: "Link to a hosted video (e.g. YouTube). No livestream is embedded on the site.",
+  },
   { name: "audio_url", label: "Audio URL", type: "url" },
-  { name: "thumbnail_url", label: "Thumbnail image URL", type: "url", help: "Upload images in the Media Library, then paste the URL here." },
+  {
+    name: "thumbnail_url",
+    label: "Thumbnail image URL",
+    type: "url",
+    help: "Upload images in the Media Library, then paste the URL here.",
+  },
   { name: "is_featured", label: "Feature this sermon", type: "checkbox" },
   statusField,
 ];
@@ -26,10 +53,19 @@ const fields: FieldDef[] = [
 const columns: ColumnDef[] = [
   { key: "title", label: "Title" },
   { key: "speaker", label: "Speaker" },
-  { key: "sermon_date", label: "Date", render: (r) => (r["sermon_date"] ? String(r["sermon_date"]) : "—") },
+  {
+    key: "sermon_date",
+    label: "Date",
+    render: (r) => (r["sermon_date"] ? String(r["sermon_date"]) : "—"),
+  },
 ];
 
 function SermonsAdmin() {
+  const list = useServerFn(listContent);
+  const create = useServerFn(createContent);
+  const update = useServerFn(updateContent);
+  const remove = useServerFn(deleteContent);
+
   return (
     <CollectionManager
       title="Sermons"
@@ -38,14 +74,14 @@ function SermonsAdmin() {
       fields={fields}
       columns={columns}
       listFn={({ page, pageSize }) =>
-        listSermons({ data: { table: "sermons", query: { page, pageSize } } }).then((result) => ({
+        list({ data: { table: "sermons", query: { page, pageSize } } }).then((result) => ({
           ...result,
           rows: result.rows.map((row) => ({ ...row })),
         }))
       }
-      createFn={(values) => createSermon({ data: { table: "sermons", values } })}
-      updateFn={({ id, values }) => updateSermon({ data: { table: "sermons", id, values } })}
-      deleteFn={({ id }) => deleteSermon({ data: { table: "sermons", id } })}
+      createFn={(values) => create({ data: { table: "sermons", values } })}
+      updateFn={({ id, values }) => update({ data: { table: "sermons", id, values } })}
+      deleteFn={({ id }) => remove({ data: { table: "sermons", id } })}
       emptyText="No sermons yet. Add the first one when a recording or summary is ready."
     />
   );

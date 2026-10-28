@@ -29,6 +29,7 @@ function Ministries() {
     slug: row.slug,
     name: row.name,
     description: row.description,
+    ...(row.featured_image_url ? { imageUrl: row.featured_image_url } : {}),
     ...(row.schedule ? { schedule: row.schedule } : {}),
     ...(row.contact ? { contact: row.contact } : {}),
     placeholder: false,

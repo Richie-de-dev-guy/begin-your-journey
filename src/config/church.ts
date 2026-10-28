@@ -7,13 +7,13 @@
 export const church = {
   name: "Chosen Fruit Covenant Ministries Int’l Inc.",
   shortName: "Chosen Fruit Covenant Ministries",
-  category: "Pentecostal / Charismatic Christian ministry",
+  category: "Pentecostal / Prophetic Christian ministry",
   phone: "08032770821",
   phoneHref: "tel:+2348032770821",
   email: "info.cfcm@gmail.com",
   emailHref: "mailto:info.cfcm@gmail.com",
   address:
-    "2958+C5J, before Jonathan By-pass Roundabout, Etap Ayip, Akai Efa Road, Calabar, Cross River State, Nigeria",
+    "Plot 7 Etap Ayip, off Akai Efa Road, before Jonathan By-pass Roundabout, Calabar, Cross River State, Nigeria",
   landmark: "Jonathan By-pass Roundabout",
   city: "Calabar",
   state: "Cross River State",

@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
-import { Church, AlertCircle } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { church } from "@/config/church";
 
@@ -54,7 +54,7 @@ function AdminLogin() {
     <div className="flex min-h-screen items-center justify-center bg-forest-deep px-4">
       <div className="w-full max-w-md rounded-2xl bg-ivory p-8 shadow-xl">
         <div className="flex items-center gap-2">
-          <Church className="h-7 w-7 text-gold" aria-hidden />
+          <img src="/cfcm-logo.png" alt="" className="h-12 w-12 shrink-0 object-contain" />
           <div>
             <p className="font-heading text-lg font-bold leading-tight text-forest-deep">
               Chosen Fruit

@@ -1,7 +1,7 @@
 import { createFileRoute, Outlet, Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Church, Menu, X, LogOut, ExternalLink } from "lucide-react";
+import { Menu, X, LogOut, ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getMyAccess } from "@/lib/admin/access.functions";
 import { ADMIN_NAV, ROLE_LABELS, type Permission } from "@/lib/admin/permissions";
@@ -103,8 +103,10 @@ function AdminLayout() {
     );
   }
 
-  const allowed = ADMIN_NAV.filter((item) =>
-    access.permissions.includes(item.permission as Permission),
+  const allowed = ADMIN_NAV.filter(
+    (item) =>
+      access.permissions.includes(item.permission as Permission) &&
+      (item.to !== "/admin/about" || access.roles.includes("super_admin")),
   );
 
   const nav = (
@@ -132,7 +134,7 @@ function AdminLayout() {
       {/* Desktop sidebar */}
       <aside className="hidden w-64 flex-col bg-forest-deep lg:flex">
         <div className="flex items-center gap-2 border-b border-ivory/10 px-4 py-4">
-          <Church className="h-6 w-6 text-gold" aria-hidden />
+          <img src="/cfcm-logo.png" alt="" className="h-10 w-10 shrink-0 object-contain" />
           <div>
             <p className="font-heading text-sm font-bold leading-tight text-ivory">
               {church.shortName}

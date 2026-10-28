@@ -1,6 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { CollectionManager, statusField, type FieldDef, type ColumnDef } from "@/components/admin/CollectionManager";
-import { listMinistries, createMinistry, updateMinistry, deleteMinistry } from "@/lib/admin/content.functions";
+import { useServerFn } from "@tanstack/react-start";
+import {
+  CollectionManager,
+  statusField,
+  type FieldDef,
+  type ColumnDef,
+} from "@/components/admin/CollectionManager";
+import {
+  listContent,
+  createContent,
+  updateContent,
+  deleteContent,
+} from "@/lib/admin/content.functions";
 import { church } from "@/config/church";
 
 export const Route = createFileRoute("/admin/ministries")({
@@ -10,11 +21,27 @@ export const Route = createFileRoute("/admin/ministries")({
 
 const fields: FieldDef[] = [
   { name: "name", label: "Ministry name", type: "text", required: true },
-  { name: "slug", label: "Slug", type: "text", required: true, help: "Unique web identifier, e.g. 'youth'." },
+  {
+    name: "slug",
+    label: "Slug",
+    type: "text",
+    required: true,
+    help: "Unique web identifier, e.g. 'youth'.",
+  },
   { name: "description", label: "Description", type: "textarea" },
-  { name: "schedule", label: "Meeting schedule", type: "text", placeholder: "e.g. Saturdays, 4:00 PM" },
+  {
+    name: "schedule",
+    label: "Meeting schedule",
+    type: "text",
+    placeholder: "e.g. Saturdays, 4:00 PM",
+  },
   { name: "contact", label: "Contact person / details", type: "text" },
-  { name: "featured_image_url", label: "Image URL", type: "url", help: "Upload images in the Media Library, then paste the URL here." },
+  {
+    name: "featured_image_url",
+    label: "Image URL",
+    type: "url",
+    help: "Upload images in the Media Library, then paste the URL here.",
+  },
   { name: "display_order", label: "Display order (lower shows first)", type: "number" },
   { name: "is_active", label: "Ministry is currently active", type: "checkbox" },
   statusField,
@@ -27,6 +54,11 @@ const columns: ColumnDef[] = [
 ];
 
 function MinistriesAdmin() {
+  const list = useServerFn(listContent);
+  const create = useServerFn(createContent);
+  const update = useServerFn(updateContent);
+  const remove = useServerFn(deleteContent);
+
   return (
     <CollectionManager
       title="Ministries"
@@ -35,14 +67,14 @@ function MinistriesAdmin() {
       fields={fields}
       columns={columns}
       listFn={({ page, pageSize }) =>
-        listMinistries({ data: { table: "ministries", query: { page, pageSize } } }).then((result) => ({
+        list({ data: { table: "ministries", query: { page, pageSize } } }).then((result) => ({
           ...result,
           rows: result.rows.map((row) => ({ ...row })),
         }))
       }
-      createFn={(values) => createMinistry({ data: { table: "ministries", values } })}
-      updateFn={({ id, values }) => updateMinistry({ data: { table: "ministries", id, values } })}
-      deleteFn={({ id }) => deleteMinistry({ data: { table: "ministries", id } })}
+      createFn={(values) => create({ data: { table: "ministries", values } })}
+      updateFn={({ id, values }) => update({ data: { table: "ministries", id, values } })}
+      deleteFn={({ id }) => remove({ data: { table: "ministries", id } })}
       emptyText="No ministries yet. Add only ministries the church has confirmed are operating."
     />
   );

@@ -1,6 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { CollectionManager, statusField, type FieldDef, type ColumnDef } from "@/components/admin/CollectionManager";
-import { listEvents, createEvent, updateEvent, deleteEvent } from "@/lib/admin/content.functions";
+import { useServerFn } from "@tanstack/react-start";
+import {
+  CollectionManager,
+  statusField,
+  type FieldDef,
+  type ColumnDef,
+} from "@/components/admin/CollectionManager";
+import {
+  listContent,
+  createContent,
+  updateContent,
+  deleteContent,
+} from "@/lib/admin/content.functions";
 import { church } from "@/config/church";
 
 export const Route = createFileRoute("/admin/events")({
@@ -10,25 +21,51 @@ export const Route = createFileRoute("/admin/events")({
 
 const fields: FieldDef[] = [
   { name: "title", label: "Event title", type: "text", required: true },
-  { name: "slug", label: "Slug", type: "text", required: true, help: "Unique web identifier, e.g. 'easter-convention-2026'." },
+  {
+    name: "slug",
+    label: "Slug",
+    type: "text",
+    required: true,
+    help: "Unique web identifier, e.g. 'easter-convention-2026'.",
+  },
   { name: "starts_at", label: "Starts", type: "datetime-local", required: true },
   { name: "ends_at", label: "Ends", type: "datetime-local" },
   { name: "venue", label: "Venue", type: "text", placeholder: "e.g. Main Auditorium" },
   { name: "online_url", label: "Online link (if any)", type: "url" },
   { name: "registration_url", label: "Registration link (if any)", type: "url" },
   { name: "description", label: "Description", type: "textarea" },
-  { name: "featured_image_url", label: "Image URL", type: "url", help: "Upload images in the Media Library, then paste the URL here." },
+  {
+    name: "featured_image_url",
+    label: "Image URL",
+    type: "url",
+    help: "Upload images in the Media Library, then paste the URL here.",
+  },
   { name: "is_featured", label: "Feature this event", type: "checkbox" },
   statusField,
 ];
 
 const columns: ColumnDef[] = [
   { key: "title", label: "Title" },
-  { key: "starts_at", label: "Date", render: (r) => (r["starts_at"] ? new Date(String(r["starts_at"])).toLocaleString("en-NG", { dateStyle: "medium", timeStyle: "short" }) : "—") },
+  {
+    key: "starts_at",
+    label: "Date",
+    render: (r) =>
+      r["starts_at"]
+        ? new Date(String(r["starts_at"])).toLocaleString("en-NG", {
+            dateStyle: "medium",
+            timeStyle: "short",
+          })
+        : "—",
+  },
   { key: "venue", label: "Venue", render: (r) => String(r["venue"] ?? "—") },
 ];
 
 function EventsAdmin() {
+  const list = useServerFn(listContent);
+  const create = useServerFn(createContent);
+  const update = useServerFn(updateContent);
+  const remove = useServerFn(deleteContent);
+
   return (
     <CollectionManager
       title="Events"
@@ -37,14 +74,14 @@ function EventsAdmin() {
       fields={fields}
       columns={columns}
       listFn={({ page, pageSize }) =>
-        listEvents({ data: { table: "events", query: { page, pageSize } } }).then((result) => ({
+        list({ data: { table: "events", query: { page, pageSize } } }).then((result) => ({
           ...result,
           rows: result.rows.map((row) => ({ ...row })),
         }))
       }
-      createFn={(values) => createEvent({ data: { table: "events", values } })}
-      updateFn={({ id, values }) => updateEvent({ data: { table: "events", id, values } })}
-      deleteFn={({ id }) => deleteEvent({ data: { table: "events", id } })}
+      createFn={(values) => create({ data: { table: "events", values } })}
+      updateFn={({ id, values }) => update({ data: { table: "events", id, values } })}
+      deleteFn={({ id }) => remove({ data: { table: "events", id } })}
       emptyText="No events yet. Add one when a date is confirmed."
     />
   );

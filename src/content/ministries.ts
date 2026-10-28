@@ -7,6 +7,7 @@ export type Ministry = {
   slug: string;
   name: string;
   description: string;
+  imageUrl?: string;
   schedule?: string;
   contact?: string;
   placeholder: boolean;
@@ -58,8 +59,7 @@ export const ministries: Ministry[] = [
   {
     slug: "men",
     name: "Men's Fellowship",
-    description:
-      "Men growing together as godly leaders in their homes, church, and workplaces.",
+    description: "Men growing together as godly leaders in their homes, church, and workplaces.",
     placeholder: true,
   },
 ];

@@ -20,6 +20,7 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as SermonsRouteImport } from './routes/sermons'
 import { Route as VisitRouteImport } from './routes/visit'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as AdminAboutRouteImport } from './routes/admin/about'
 import { Route as AdminAnnouncementsRouteImport } from './routes/admin/announcements'
 import { Route as AdminAuditLogsRouteImport } from './routes/admin/audit-logs'
 import { Route as AdminContentRouteImport } from './routes/admin/content'
@@ -87,6 +88,11 @@ const VisitRoute = VisitRouteImport.update({
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminAboutRoute = AdminAboutRouteImport.update({
+  id: '/about',
+  path: '/about',
   getParentRoute: () => AdminRouteRoute,
 } as any)
 const AdminAnnouncementsRoute = AdminAnnouncementsRouteImport.update({
@@ -166,6 +172,7 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/sermons': typeof SermonsRoute
   '/visit': typeof VisitRoute
+  '/admin/about': typeof AdminAboutRoute
   '/admin/announcements': typeof AdminAnnouncementsRoute
   '/admin/audit-logs': typeof AdminAuditLogsRoute
   '/admin/content': typeof AdminContentRoute
@@ -191,6 +198,7 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/sermons': typeof SermonsRoute
   '/visit': typeof VisitRoute
+  '/admin/about': typeof AdminAboutRoute
   '/admin/announcements': typeof AdminAnnouncementsRoute
   '/admin/audit-logs': typeof AdminAuditLogsRoute
   '/admin/content': typeof AdminContentRoute
@@ -218,6 +226,7 @@ export interface FileRoutesById {
   '/privacy': typeof PrivacyRoute
   '/sermons': typeof SermonsRoute
   '/visit': typeof VisitRoute
+  '/admin/about': typeof AdminAboutRoute
   '/admin/announcements': typeof AdminAnnouncementsRoute
   '/admin/audit-logs': typeof AdminAuditLogsRoute
   '/admin/content': typeof AdminContentRoute
@@ -246,6 +255,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/sermons'
     | '/visit'
+    | '/admin/about'
     | '/admin/announcements'
     | '/admin/audit-logs'
     | '/admin/content'
@@ -271,6 +281,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/sermons'
     | '/visit'
+    | '/admin/about'
     | '/admin/announcements'
     | '/admin/audit-logs'
     | '/admin/content'
@@ -297,6 +308,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/sermons'
     | '/visit'
+    | '/admin/about'
     | '/admin/announcements'
     | '/admin/audit-logs'
     | '/admin/content'
@@ -405,6 +417,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRouteRoute
     }
+    '/admin/about': {
+      id: '/admin/about'
+      path: '/about'
+      fullPath: '/admin/about'
+      preLoaderRoute: typeof AdminAboutRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
     '/admin/announcements': {
       id: '/admin/announcements'
       path: '/announcements'
@@ -500,6 +519,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AdminRouteRouteChildren {
+  AdminAboutRoute: typeof AdminAboutRoute
   AdminAnnouncementsRoute: typeof AdminAnnouncementsRoute
   AdminAuditLogsRoute: typeof AdminAuditLogsRoute
   AdminContentRoute: typeof AdminContentRoute
@@ -517,6 +537,7 @@ interface AdminRouteRouteChildren {
 }
 
 const AdminRouteRouteChildren: AdminRouteRouteChildren = {
+  AdminAboutRoute: AdminAboutRoute,
   AdminAnnouncementsRoute: AdminAnnouncementsRoute,
   AdminAuditLogsRoute: AdminAuditLogsRoute,
   AdminContentRoute: AdminContentRoute,

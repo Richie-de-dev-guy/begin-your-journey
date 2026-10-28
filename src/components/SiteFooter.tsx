@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Church, Mail, MapPin, Phone } from "lucide-react";
+import { Mail, MapPin, Phone } from "lucide-react";
 import { church, navItems } from "@/config/church";
 import { ministries } from "@/content/ministries";
 
@@ -10,7 +10,7 @@ export function SiteFooter() {
       <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-2 lg:grid-cols-4">
         <div>
           <div className="flex items-center gap-2">
-            <Church className="h-6 w-6 text-gold" aria-hidden />
+            <img src="/cfcm-logo.png" alt="" className="h-10 w-10 shrink-0 object-contain" />
             <p className="font-heading text-lg font-bold">{church.name}</p>
           </div>
           <p className="mt-3 text-sm text-primary-foreground/80">

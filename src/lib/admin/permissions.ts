@@ -61,5 +61,6 @@ export const ADMIN_NAV: AdminNavItem[] = [
   { label: "Inquiries", to: "/admin/inquiries", permission: "inquiries.read" },
   { label: "Prayer Requests", to: "/admin/prayer-requests", permission: "prayer_requests.read" },
   { label: "Staff", to: "/admin/users", permission: "users.manage" },
+  { label: "About page", to: "/admin/about", permission: "settings.manage" },
   { label: "Audit Log", to: "/admin/audit-logs", permission: "audit_logs.read" },
 ];

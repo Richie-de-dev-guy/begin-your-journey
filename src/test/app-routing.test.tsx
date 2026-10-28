@@ -21,6 +21,7 @@ describe("App routing", () => {
     ["/admin/login", "/admin/login"],
     ["/admin", "/admin/"],
     ["/admin/users", "/admin/users"],
+    ["/admin/about", "/admin/about"],
     ["/admin/audit-logs", "/admin/audit-logs"],
     ["/statement-of-faith", "/$slug"],
     ["/contact", "/contact"],

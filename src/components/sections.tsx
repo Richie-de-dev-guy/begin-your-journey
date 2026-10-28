@@ -121,30 +121,43 @@ export function ContactDetails() {
 
 export function MinistryCard({ ministry }: { ministry: Ministry }) {
   return (
-    <article className="flex flex-col rounded-2xl border border-border bg-card p-6 shadow-sm transition-shadow hover:shadow-md">
-      <span className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary">
-        <Users className="h-6 w-6 text-primary" aria-hidden />
-      </span>
-      <h3 className="mt-4 text-xl font-semibold">{ministry.name}</h3>
-      <p className="mt-2 flex-1 text-sm text-muted-foreground">{ministry.description}</p>
-      {ministry.schedule && (
-        <p className="mt-3 text-sm">
-          <strong>Meets:</strong> {ministry.schedule}
-        </p>
+    <article className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-shadow hover:shadow-md">
+      {ministry.imageUrl ? (
+        <img
+          src={ministry.imageUrl}
+          alt={`Image for ${ministry.name}`}
+          loading="lazy"
+          className="aspect-video w-full object-cover"
+        />
+      ) : (
+        <div className="px-6 pt-6">
+          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary">
+            <Users className="h-6 w-6 text-primary" aria-hidden />
+          </span>
+        </div>
       )}
-      {ministry.contact && (
-        <p className="mt-1 text-sm">
-          <strong>Contact:</strong> {ministry.contact}
-        </p>
-      )}
-      {ministry.placeholder && (
-        <p className="mt-4 text-xs italic text-muted-foreground">
-          Details to be confirmed by the church.{" "}
-          <a href={church.emailHref} className="text-primary underline">
-            Ask about this ministry
-          </a>
-        </p>
-      )}
+      <div className="flex h-full flex-col p-6">
+        <h3 className="text-xl font-semibold">{ministry.name}</h3>
+        <p className="mt-2 flex-1 text-sm text-muted-foreground">{ministry.description}</p>
+        {ministry.schedule && (
+          <p className="mt-3 text-sm">
+            <strong>Meets:</strong> {ministry.schedule}
+          </p>
+        )}
+        {ministry.contact && (
+          <p className="mt-1 text-sm">
+            <strong>Contact:</strong> {ministry.contact}
+          </p>
+        )}
+        {ministry.placeholder && (
+          <p className="mt-4 text-xs italic text-muted-foreground">
+            Details to be confirmed by the church.{" "}
+            <a href={church.emailHref} className="text-primary underline">
+              Ask about this ministry
+            </a>
+          </p>
+        )}
+      </div>
     </article>
   );
 }

@@ -1,107 +1,201 @@
-# Chosen Fruit Covenant Ministries Int’l Inc. — Website and Admin CMS
+# Chosen Fruit Covenant Ministries Website
 
-Public website for Chosen Fruit Covenant Ministries Int’l Inc., a Pentecostal / Charismatic
-Christian ministry in Calabar, Cross River State, Nigeria.
+The public website and staff content-management system for Chosen Fruit Covenant
+Ministries Int’l Inc., based in Calabar, Cross River State, Nigeria.
 
-## Tech stack
+## Overview
 
-- TanStack Start (React 19 + TypeScript, SSR) with Vite
-- Tailwind CSS v4 (design tokens in `src/styles.css`)
-- Lucide React icons
-- File-based routing in `src/routes/`
+The application combines public church information and published content with a
+protected admin dashboard. Staff access is managed through Supabase Auth and
+role-based permissions; signing in alone does not grant admin access.
 
-## Development
+### Public website
 
-```bash
-bun install
-bun run dev      # local dev server
-bun run build    # production build
-bun run test     # run tests
-bunx tsc --noEmit
-```
+- Church information, contact details, ministries, sermons, and events
+- Published CMS pages and announcements from Supabase
+- Contact enquiry and private prayer-request forms
+- Responsive layouts and basic search-engine metadata
 
-Copy `.env.example` to `.env` and set values from one Supabase project. Never commit
-`.env`, put a password or service-role key in a `VITE_*` variable, or share database
-credentials. `SUPABASE_SERVICE_ROLE_KEY` is server-only and is used only for staff
-invitation and role-management operations and server-side media-reference checks.
-Set `SITE_URL` to the public site origin so Supabase invitations return to
-`/admin/reset-password`.
+### Admin dashboard
 
-## Database schema
+- Supabase-authenticated admin routes at `/admin`
+- Content management for pages, sermons, events, announcements, and ministries
+- Media library for JPEG, PNG, WebP, and GIF images up to 5 MB
+- Super Administrator editor for the six public About page sections
+- Staff invitations, role management, and audit history
+- Server-side permission checks and database row-level security (RLS)
 
-Set `DATABASE_URL` in `.env` to your Supabase Postgres connection string, then run
-`bun run db:push`. Use the database password in the connection string; do not use the
-Supabase publishable or service-role key. For Supabase migrations, use the Session
-pooler connection string from the same project's Connect panel; `db:push` changes
-the transaction-pooler port (6543) to the session-pooler port (5432) automatically.
-The command pushes the schema in
-`drizzle/schema.ts`, then automatically installs the Supabase permission functions,
-role-permission seed data, signup trigger, grants, and media storage policies.
+## Technology
 
-Do not run the old SQL migration files manually. Drizzle manages the tables, enums,
-indexes, and row-level security policies. The remaining Supabase-specific setup runs
-automatically as part of `db:push`. The command briefly installs deny-all helper
-functions before Drizzle creates the RLS policies, then replaces them with the real
-permission checks afterward.
+- [TanStack Start](https://tanstack.com/start) with React 19 and TypeScript
+- [Vite](https://vite.dev/) and [Tailwind CSS v4](https://tailwindcss.com/)
+- [Supabase](https://supabase.com/) Auth, Postgres, and Storage
+- [Drizzle ORM](https://orm.drizzle.team/) and Drizzle Kit for schema management
+- [Bun](https://bun.sh/) for package management and project scripts
 
-After `db:push` succeeds and the account exists under **Supabase Dashboard →
-Authentication → Users**, grant it admin access with `bun run db:seed`. Enter the
-account email when prompted or set `ADMIN_EMAIL` in `.env`. This activates the account's staff profile, grants the
-`super_admin` role, and ensures the `dashboard.view` permission; it does not create
-an account or password. Sign in at `/admin/login` with the email and password set
-for the Supabase Auth account.
+## Prerequisites
 
-The Auth account must already exist in the same Supabase project. The admin
-dashboard uses database roles and permissions; successful authentication alone
-does not grant staff access.
+- Bun installed
+- A Supabase project for the application
+- Supabase project URL and publishable key
+- A Supabase Postgres connection string for schema setup
 
-The database schema and RLS policies are defined in `drizzle/schema.ts`.
-`bun run db:push` uses Drizzle Kit push and then installs the Supabase-specific
-functions, grants, trigger, role permissions, and storage policies. Do not run
-legacy SQL migration files manually. In Supabase, ensure the Auth redirect allow
-list includes the deployed site's `/admin/reset-password` URL. The media bucket
-is provisioned by `db:push`.
+## Local development
 
-Public sermons, events, ministries, announcements, and published CMS pages read
-from the Supabase tables. Contact enquiries and prayer requests are submitted to
-their respective tables; prayer-request contents are protected by RLS and staff
-permissions.
+1. Install dependencies:
 
-## Project structure
+   ```sh
+   bun install
+   ```
 
-- `src/config/church.ts` — **single source of truth** for church name, phone, email, address,
-  navigation, service times, and social links. Update church facts here only.
-- `src/content/` — fallback/initial content types. Published sermons, events,
-  ministries, announcements, and custom pages are read from Supabase.
-- `src/components/` — reusable components: `SiteHeader`, `SiteFooter`, `sections.tsx`
-  (PageHero, MinistryCard, SermonCard, EventCard, ContactDetails, ServiceTimes, …),
-  `ContactForm.tsx`, `ui.tsx` (PageContainer, SectionHeading, buttons, EmptyState).
-- `src/routes/` — public pages plus `/admin` for the protected CMS, staff management,
-  invitations, and audit history.
-- `public/sitemap.xml`, `public/robots.txt` — SEO files (add absolute URLs once the
-  production domain is known).
+2. Copy `.env.example` to `.env` and replace the placeholders with values from
+   the **same Supabase project**. Keep `.env` private and out of version control.
+   See [Environment variables](#environment-variables).
 
-## Information still needed from the church before launch
+3. Start the development server:
 
-1. Official mission / vision statements, church history, core values, statement of faith.
-2. Service times (currently a placeholder prompting visitors to call).
-3. Pastor / leadership names and introductions.
-4. Confirmed list of active ministries (current cards are labelled examples).
-5. Real sermons and events to publish.
-6. Official logo (a text-based logo is used for now).
-7. Confirmed social media links, if any.
-8. Review and approval of the draft privacy policy.
-9. Review of the Google Business listing spelling (“Choosen Fruit Ministry” vs the official name).
+   ```sh
+   bun run dev
+   ```
 
-## Public forms
+   Open the local URL printed by Vite (normally `http://localhost:5173`).
 
-The contact form stores validated enquiries in Supabase. Prayer requests are stored
-separately and can be marked private; access to their contents requires an explicit
-staff permission. Both forms use server-side validation and database row-level security.
+4. To create or update the Supabase schema, follow
+   [Database setup](#database-setup).
 
-## Future phases
+## Environment variables
 
-Future work includes online giving via Paystack/Flutterwave and member accounts/event
-registration. For launch, configure the Supabase Auth redirect allow list and SMTP,
-set production environment variables, push the Drizzle schema, and grant the initial
-administrator with `bun run db:seed`.
+| Variable                        | Required                        | Purpose                                                                                |
+| ------------------------------- | ------------------------------- | -------------------------------------------------------------------------------------- |
+| `SUPABASE_URL`                  | Yes                             | Supabase project URL used by server-side functions                                     |
+| `SUPABASE_PUBLISHABLE_KEY`      | Yes                             | Publishable key used by server-side Supabase clients                                   |
+| `VITE_SUPABASE_URL`             | Yes for browser auth            | Project URL embedded in the browser bundle                                             |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | Yes for browser auth            | Publishable key embedded in the browser bundle                                         |
+| `DATABASE_URL`                  | For database scripts            | Supabase Postgres connection string                                                    |
+| `SUPABASE_SERVICE_ROLE_KEY`     | For privileged staff operations | Server-only key used for staff invitations and media-reference checks                  |
+| `SITE_URL`                      | For staff invitations           | Public application origin used to construct invitation redirects                       |
+| `ADMIN_EMAIL`                   | Optional                        | Existing Supabase Auth account used by `bun run db:seed`; otherwise the script prompts |
+
+Use the Supabase **publishable** key in `VITE_*` variables. Never put a service
+role or secret key, database password, or user password in a `VITE_*` variable:
+Vite exposes those variables to the browser. Do not commit `.env` or paste
+credentials into source files.
+
+For local development, set `SITE_URL` to the local origin shown by Vite. In
+production, use the deployed site origin. Configure Supabase Auth's redirect
+allow list to include the matching `/admin/reset-password` URL.
+
+## Database setup
+
+The Drizzle schema is defined in [`drizzle/schema.ts`](./drizzle/schema.ts).
+Database setup uses Drizzle Kit push, followed by the Supabase-specific
+functions, grants, seed permissions, triggers, and Storage policies in
+`drizzle/pre-push.sql` and `drizzle/post-push.sql`.
+
+1. Set `DATABASE_URL` to the Postgres connection string from the Supabase
+   project's **Connect** panel. Use a database password, not a Supabase API key.
+2. Use the session-pooler connection details when connecting through the
+   Supabase pooler. The script changes the pooler port from `6543` to `5432`
+   when needed.
+3. Confirm `DATABASE_URL` and `SUPABASE_URL` both point to the intended project.
+4. Run:
+
+   ```sh
+   bun run db:push
+   ```
+
+This command changes the target database schema. Review any Drizzle Kit
+confirmation prompts before accepting changes, and use the intended project.
+Do not manually apply the legacy SQL migration; the supported setup path is
+`bun run db:push`.
+
+The About page editor requires this schema setup. It adds six placeholder About
+sections without replacing any content an administrator has already saved.
+
+## Initial admin access
+
+1. Create or invite the administrator in the Supabase Dashboard under
+   **Authentication → Users**. Set or reset the password through Supabase Auth.
+2. After the schema has been pushed, grant that existing account staff access:
+
+   ```sh
+   bun run db:seed
+   ```
+
+   Enter the account email when prompted, or set `ADMIN_EMAIL` in `.env`.
+
+3. Sign in at `/admin/login` with that Supabase Auth account.
+
+The seed script activates the account's staff profile, grants the
+`super_admin` role, and ensures `dashboard.view`. It does not create an Auth
+account, set a password, or bypass authentication. Keep the service role key
+server-only; use it for the staff invitation and privileged media-reference
+operations that require it.
+
+## Available scripts
+
+| Command              | Description                                             |
+| -------------------- | ------------------------------------------------------- |
+| `bun run dev`        | Start the Vite development server                       |
+| `bun run build`      | Create the production build                             |
+| `bun run preview`    | Preview a production build locally                      |
+| `bun run test`       | Run the automated test suite                            |
+| `bun run test:watch` | Run tests in watch mode                                 |
+| `bunx tsc --noEmit`  | Type-check the project                                  |
+| `bun run lint`       | Run ESLint                                              |
+| `bun run format`     | Format project files with Prettier                      |
+| `bun run db:push`    | Push the Drizzle schema and run Supabase setup SQL      |
+| `bun run db:seed`    | Grant admin access to an existing Supabase Auth account |
+
+## Content and data
+
+Public pages display published content from Supabase. Draft and archived
+records are restricted to authorized staff. Contact enquiries and prayer
+requests are stored separately; prayer-request records are protected by
+database policies and staff permissions.
+
+Image uploads are validated on the server for allowed format, file signature,
+and size. Uploaded images can be selected in the Media Library and their public
+URLs used by supported content records.
+
+## Security model
+
+- Supabase Auth verifies user identities.
+- Server functions check the user's permissions before protected operations.
+- PostgreSQL RLS policies enforce access at the database layer.
+- Admin routes require an active staff profile and the appropriate permissions.
+- Service-role credentials are used only in server-side code and must never be
+  exposed to the browser.
+
+Do not disable these checks to troubleshoot access. Instead, confirm the account
+exists in Supabase Auth, the schema has been pushed, and the account has the
+required role and permissions.
+
+## Project layout
+
+| Path                         | Purpose                                                         |
+| ---------------------------- | --------------------------------------------------------------- |
+| `src/routes/`                | Public pages and file-based route definitions                   |
+| `src/routes/admin/`          | Protected admin pages                                           |
+| `src/components/`            | Shared site, content, form, and admin components                |
+| `src/config/church.ts`       | Central church details and navigation                           |
+| `src/content/`               | Content types and local fallback content                        |
+| `src/lib/admin/`             | Admin server functions, schemas, permissions, and guards        |
+| `src/integrations/supabase/` | Supabase clients, auth middleware, and generated database types |
+| `drizzle/schema.ts`          | Drizzle table, enum, index, and RLS definitions                 |
+| `drizzle/pre-push.sql`       | Database helper functions prepared before schema push           |
+| `drizzle/post-push.sql`      | Supabase-specific post-push setup                               |
+| `scripts/`                   | Database push and administrator provisioning scripts            |
+
+## Launch checklist
+
+- [ ] Replace all Supabase placeholders with credentials from the intended project.
+- [ ] Set production environment variables securely in the hosting provider.
+- [ ] Run `bun run db:push` against the intended Supabase database.
+- [ ] Create or invite the initial Auth user and run `bun run db:seed`.
+- [ ] Configure Auth redirect URLs and email delivery for the deployed domain.
+- [ ] Confirm official church copy, leadership details, service times, active ministries,
+      social links, logo, and privacy policy with the church.
+- [ ] Run `bunx tsc --noEmit`, `bun run lint`, `bun run test`, and `bun run build`.
+
+Online giving and member accounts are not currently implemented.

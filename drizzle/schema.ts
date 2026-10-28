@@ -44,6 +44,8 @@ export const prayerStatus = pgEnum("prayer_status", [
 
 const hasPermission = (permission: string) =>
   sql`public.has_permission(auth.uid(), ${sql.raw(`'${permission}'`)})`;
+const isSuperAdmin = () =>
+  sql`public.has_role(auth.uid(), 'super_admin') and public.has_permission(auth.uid(), 'settings.manage')`;
 
 export const profiles = pgTable(
   "profiles",
@@ -199,6 +201,43 @@ export const pages = pgTable(
   ],
 ).enableRLS();
 
+export const aboutSections = pgTable(
+  "about_sections",
+  {
+    key: text("key").primaryKey(),
+    title: text("title").notNull(),
+    body: text("body").notNull().default(""),
+    isPlaceholder: boolean("is_placeholder").notNull().default(true),
+    displayOrder: integer("display_order").notNull(),
+    updatedBy: uuid("updated_by"),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("idx_about_sections_order").on(table.displayOrder),
+    pgPolicy("public reads about sections", {
+      for: "select",
+      to: anon,
+      using: sql`true`,
+    }),
+    pgPolicy("super admins read about sections", {
+      for: "select",
+      to: authenticated,
+      using: isSuperAdmin(),
+    }),
+    pgPolicy("super admins create about sections", {
+      for: "insert",
+      to: authenticated,
+      withCheck: isSuperAdmin(),
+    }),
+    pgPolicy("super admins update about sections", {
+      for: "update",
+      to: authenticated,
+      using: isSuperAdmin(),
+      withCheck: isSuperAdmin(),
+    }),
+  ],
+).enableRLS();
+
 export const sermons = pgTable(
   "sermons",
   {
@@ -285,6 +324,7 @@ export const announcements = pgTable(
     id: uuid("id").primaryKey().defaultRandom(),
     title: text("title").notNull(),
     body: text("body").notNull().default(""),
+    isPlaceholder: boolean("is_placeholder").notNull().default(false),
     imageUrl: text("image_url"),
     publishedAt: timestamp("published_at", { withTimezone: true }),
     expiresAt: timestamp("expires_at", { withTimezone: true }),
