@@ -81,7 +81,7 @@ function contentWriteError(action: "save" | "update", table: Table, code?: strin
 
 export const listContent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z.object({ table: tableSchema, query: listQuerySchema }).parse(input),
   )
   .handler(async ({ data, context }) => {
@@ -107,7 +107,7 @@ export const listContent = createServerFn({ method: "POST" })
 
 export const createContent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => {
+  .validator((input: unknown) => {
     const parsed = z
       .object({ table: tableSchema, values: z.record(z.string(), z.unknown()) })
       .parse(input);
@@ -141,7 +141,7 @@ export const createContent = createServerFn({ method: "POST" })
 
 export const updateContent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => {
+  .validator((input: unknown) => {
     const parsed = z
       .object({
         table: tableSchema,
@@ -174,7 +174,7 @@ export const updateContent = createServerFn({ method: "POST" })
 
 export const deleteContent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z.object({ table: tableSchema, id: z.string().uuid() }).parse(input),
   )
   .handler(async ({ data, context }) => {

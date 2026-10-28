@@ -20,7 +20,7 @@ const aboutSectionSchema = z.object({
 
 export const saveAboutSections = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => {
+  .validator((input: unknown) => {
     const sections = z.array(aboutSectionSchema).length(6).parse(input);
     if (new Set(sections.map((section) => section.key)).size !== 6) {
       throw new Error("Include each About page section exactly once.");

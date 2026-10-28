@@ -19,7 +19,7 @@ const ALLOWED: Record<string, string> = {
 
 export const listMedia = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => listQuerySchema.parse(input))
+  .validator((input: unknown) => listQuerySchema.parse(input))
   .handler(async ({ data, context }) => {
     await requirePermission(context, "media.manage");
     const { search, page, pageSize } = data;
@@ -51,7 +51,7 @@ export const listMedia = createServerFn({ method: "POST" })
  */
 export const uploadMedia = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => uploadSchema.parse(input))
+  .validator((input: unknown) => uploadSchema.parse(input))
   .handler(async ({ data, context }) => {
     await requirePermission(context, "media.manage");
     const buffer = new Uint8Array(data.bytes);
@@ -101,7 +101,7 @@ export const uploadMedia = createServerFn({ method: "POST" })
 
 export const updateMediaMeta = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => mediaMetaSchema.parse(input))
+  .validator((input: unknown) => mediaMetaSchema.parse(input))
   .handler(async ({ data, context }) => {
     await requirePermission(context, "media.manage");
     const { error } = await context.supabase
@@ -115,7 +115,7 @@ export const updateMediaMeta = createServerFn({ method: "POST" })
 /** Delete only when the asset is not referenced by any content record. */
 export const deleteMedia = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .validator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     await requirePermission(context, "media.manage");
     const { data: asset, error: findError } = await context.supabase

@@ -60,7 +60,7 @@ export const listStaff = createServerFn({ method: "GET" })
 /** Invite a new staff member: creates an invitation and sends an invite email. */
 export const inviteStaff = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => inviteStaffSchema.parse(input))
+  .validator((input: unknown) => inviteStaffSchema.parse(input))
   .handler(async ({ data, context }) => {
     await requirePermission(context, "users.manage");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -108,7 +108,7 @@ export const inviteStaff = createServerFn({ method: "POST" })
 /** Change a staff member's roles. Self-escalation to super_admin is blocked. */
 export const setStaffRoles = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         userId: z.string().uuid(),
@@ -169,7 +169,7 @@ export const setStaffRoles = createServerFn({ method: "POST" })
 /** Activate or deactivate a staff account. */
 export const setStaffActive = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z.object({ userId: z.string().uuid(), isActive: z.boolean() }).parse(input),
   )
   .handler(async ({ data, context }) => {
@@ -205,7 +205,7 @@ export const setStaffActive = createServerFn({ method: "POST" })
 /** Grant or revoke an individual permission override (e.g. prayer access for one pastor). */
 export const setUserPermission = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({ userId: z.string().uuid(), permission: z.string().max(60), granted: z.boolean() })
       .parse(input),
@@ -243,7 +243,7 @@ export const setUserPermission = createServerFn({ method: "POST" })
 
 export const listAuditLogs = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         page: z.number().int().min(1).default(1),

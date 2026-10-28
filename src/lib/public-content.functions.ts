@@ -195,7 +195,7 @@ export const listLiveAnnouncements = createServerFn({ method: "GET" }).handler(a
 });
 
 export const getPublishedPage = createServerFn({ method: "GET" })
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         slug: z
@@ -227,7 +227,7 @@ export const getPublishedPage = createServerFn({ method: "GET" })
 
 /** Public contact-form submission -> inquiries table. Validated server-side. */
 export const submitInquiry = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => publicInquirySchema.parse(input))
+  .validator((input: unknown) => publicInquirySchema.parse(input))
   .handler(async ({ data }) => {
     const { error } = await publicClient()
       .from("inquiries")
@@ -247,7 +247,7 @@ export const submitInquiry = createServerFn({ method: "POST" })
 
 /** Public prayer-request submission -> confidential table. */
 export const submitPrayerRequest = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => publicPrayerSchema.parse(input))
+  .validator((input: unknown) => publicPrayerSchema.parse(input))
   .handler(async ({ data }) => {
     const { error } = await publicClient()
       .from("prayer_requests")

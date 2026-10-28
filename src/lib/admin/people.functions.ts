@@ -8,7 +8,7 @@ import { inquiryUpdateSchema, prayerUpdateSchema, listQuerySchema } from "./sche
 
 export const listInquiries = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => listQuerySchema.parse(input))
+  .validator((input: unknown) => listQuerySchema.parse(input))
   .handler(async ({ data, context }) => {
     await requirePermission(context, "inquiries.read");
     const { search, status, page, pageSize } = data;
@@ -31,7 +31,7 @@ export const listInquiries = createServerFn({ method: "POST" })
 
 export const getInquiry = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .validator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     await requirePermission(context, "inquiries.read");
     const { data: row, error } = await context.supabase
@@ -45,7 +45,7 @@ export const getInquiry = createServerFn({ method: "POST" })
 
 export const updateInquiry = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => inquiryUpdateSchema.parse(input))
+  .validator((input: unknown) => inquiryUpdateSchema.parse(input))
   .handler(async ({ data, context }) => {
     await requirePermission(context, "inquiries.update");
     const { id, ...patch } = data;
@@ -66,7 +66,7 @@ export const updateInquiry = createServerFn({ method: "POST" })
 
 export const listPrayerRequests = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => listQuerySchema.parse(input))
+  .validator((input: unknown) => listQuerySchema.parse(input))
   .handler(async ({ data, context }) => {
     await requirePermission(context, "prayer_requests.read");
     const { status, page, pageSize } = data;
@@ -83,7 +83,7 @@ export const listPrayerRequests = createServerFn({ method: "POST" })
 
 export const getPrayerRequest = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .validator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     await requirePermission(context, "prayer_requests.read");
     const { data: row, error } = await context.supabase
@@ -99,7 +99,7 @@ export const getPrayerRequest = createServerFn({ method: "POST" })
 
 export const updatePrayerRequest = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => prayerUpdateSchema.parse(input))
+  .validator((input: unknown) => prayerUpdateSchema.parse(input))
   .handler(async ({ data, context }) => {
     await requirePermission(context, "prayer_requests.update");
     const { id, ...patch } = data;
